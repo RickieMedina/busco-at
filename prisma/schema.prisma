@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model application {
+  application_id     Int           @id @default(autoincrement())
+  professional_id    Int?
+  job_offer_id       Int?
+  application_date   DateTime?     @db.Date
+  application_status String?       @db.VarChar(255)
+  job_offer          job_offer?    @relation(fields: [job_offer_id], references: [job_offer_id], onDelete: NoAction, onUpdate: NoAction)
+  professional       professional? @relation(fields: [professional_id], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
+  payment            payment[]
+}
+
+model attachment {
+  attachment_id                                               Int              @id @default(autoincrement())
+  professional_id                                             Int?
+  attachment_type                                             Int?
+  created_at                                                  DateTime?        @db.Date
+  end_date                                                    DateTime?        @db.Date
+  file_location                                               String?          @db.VarChar(255)
+  attachment_type_attachment_attachment_typeToattachment_type attachment_type? @relation("attachment_attachment_typeToattachment_type", fields: [attachment_type], references: [attachment_type], onDelete: NoAction, onUpdate: NoAction)
+  professional                                                professional?    @relation(fields: [professional_id], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model attachment_type {
+  attachment_type                                        Int          @id @default(autoincrement())
+  name                                                   String?      @db.VarChar(255)
+  description                                            String?      @db.VarChar(255)
+  attachment_attachment_attachment_typeToattachment_type attachment[] @relation("attachment_attachment_typeToattachment_type")
+}
+
+model employer {
+  employer_id  Int         @id @default(autoincrement())
+  user_id      String?     @db.VarChar(255)
+  company_name String?     @db.VarChar(255)
+  phone        String?     @db.VarChar(255)
+  email        String?     @db.VarChar(255)
+  users        users?      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  job_offer    job_offer[]
+  rating       rating[]
+}
+
+model gender_type {
+  gender_id Int         @id @default(autoincrement())
+  name      String?     @db.VarChar(255)
+  job_offer job_offer[]
+  users     users[]
+}
+
+model health_care_type {
+  health_care_type_id                                          Int                      @id @default(autoincrement())
+  name                                                         String?                  @db.VarChar(255)
+  professional_professional_health_care_typeTohealth_care_type professional[]           @relation("professional_health_care_typeTohealth_care_type")
+  professional_care_type                                       professional_care_type[]
+}
+
+model identification_type {
+  identification_id                                    Int     @id @default(autoincrement())
+  name                                                 String? @db.VarChar(255)
+  users_users_identification_typeToidentification_type users[] @relation("users_identification_typeToidentification_type")
+}
+
+model job_offer {
+  job_offer_id        Int           @id @default(autoincrement())
+  created_date        DateTime?     @db.Date
+  end_date            DateTime?     @db.Date
+  employer_id         Int?
+  gender              Int?
+  age_from            Int?
+  age_to              Int?
+  require_certificate Boolean?
+  days_hours          String?       @db.VarChar(255)
+  address             String?       @db.VarChar(255)
+  latitude            Float?
+  longitude           Float?
+  diagnosis           String?       @db.VarChar(255)
+  social_security     Boolean?
+  private             Boolean?
+  observations        String?       @db.VarChar(255)
+  application         application[]
+  employer            employer?     @relation(fields: [employer_id], references: [employer_id], onDelete: NoAction, onUpdate: NoAction)
+  gender_type         gender_type?  @relation(fields: [gender], references: [gender_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model notification {
+  notification_id   Int       @id @default(autoincrement())
+  user_id           String?   @db.VarChar(255)
+  notification_type String?   @db.VarChar(255)
+  notification_date DateTime? @db.Date
+  content           String?   @db.VarChar(255)
+  users             users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model patient_type {
+  patient_type_id                                      Int                    @id @default(autoincrement())
+  name                                                 String?                @db.VarChar(255)
+  professional_professional_patient_typeTopatient_type professional[]         @relation("professional_patient_typeTopatient_type")
+  professional_patient                                 professional_patient[]
+}
+
+model payment {
+  payment_id     Int          @id @default(autoincrement())
+  application_id Int?
+  date           DateTime?    @db.Date
+  amount         Decimal?     @db.Decimal(10, 2)
+  payment_status String?      @db.VarChar(255)
+  application    application? @relation(fields: [application_id], references: [application_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model professional {
+  professional_id                                                  Int                      @id @default(autoincrement())
+  user_id                                                          String?                  @db.VarChar(255)
+  social_security                                                  Boolean?
+  private                                                          Boolean?
+  health_care_type                                                 Int?
+  patient_type                                                     Int?
+  hourly_rate                                                      Float?
+  observations                                                     String?                  @db.VarChar(255)
+  application                                                      application[]
+  attachment                                                       attachment[]
+  health_care_type_professional_health_care_typeTohealth_care_type health_care_type?        @relation("professional_health_care_typeTohealth_care_type", fields: [health_care_type], references: [health_care_type_id], onDelete: NoAction, onUpdate: NoAction)
+  patient_type_professional_patient_typeTopatient_type             patient_type?            @relation("professional_patient_typeTopatient_type", fields: [patient_type], references: [patient_type_id], onDelete: NoAction, onUpdate: NoAction)
+  users                                                            users?                   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  professional_care_type                                           professional_care_type[]
+  professional_patient                                             professional_patient[]
+  rating                                                           rating[]
+}
+
+model professional_care_type {
+  professional_care_type_id Int               @id @default(autoincrement())
+  professional_id           Int?
+  health_care_type_id       Int?
+  health_care_type          health_care_type? @relation(fields: [health_care_type_id], references: [health_care_type_id], onDelete: NoAction, onUpdate: NoAction)
+  professional              professional?     @relation(fields: [professional_id], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model professional_patient {
+  professional_patient_id Int           @id @default(autoincrement())
+  professional_id         Int?
+  patient_type_id         Int?
+  patient_type            patient_type? @relation(fields: [patient_type_id], references: [patient_type_id], onDelete: NoAction, onUpdate: NoAction)
+  professional            professional? @relation(fields: [professional_id], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model rating {
+  rating_id       Int           @id @default(autoincrement())
+  employer_id     Int?
+  professional_id Int?
+  rating_type_id  Int?
+  rating_score    Int?
+  employer        employer?     @relation(fields: [employer_id], references: [employer_id], onDelete: NoAction, onUpdate: NoAction)
+  professional    professional? @relation(fields: [professional_id], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
+  rating_type     rating_type?  @relation(fields: [rating_type_id], references: [rating_type_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model rating_type {
+  rating_type_id Int      @id @default(autoincrement())
+  name           String?  @db.VarChar(255)
+  rating         rating[]
+}
+
+model sessions {
+  session_token String    @id @db.VarChar(255)
+  user_id       String?   @db.VarChar(255)
+  expires       DateTime? @db.Date
+  created_at    DateTime? @db.Date
+  updated_at    DateTime? @db.Date
+  users         users?    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  user_id                                                            String               @id @default(uuid()) 
+  name                                                               String?              @db.VarChar(255)
+  last_name                                                          String?              @db.VarChar(255)
+  email                                                              String?              @unique @db.VarChar(255)
+  password_hash                                                      String?              @db.VarChar(255)
+  email_verified                                                     DateTime?            @db.Date
+  identification_type                                                Int?
+  identification_number                                              String?              @db.VarChar(255)
+  birth_date                                                         DateTime?            @db.Date
+  gender                                                             Int?
+  phone                                                              String?              @db.VarChar(255)
+  address                                                            String?              @db.VarChar(255)
+  latitude                                                           Float?
+  longitude                                                          Float?
+  image                                                              String?              @db.VarChar(255)
+  role                                                               Role                 @default(profesional)
+  created_at                                                         DateTime?            @db.Date 
+  updated_at                                                         DateTime?            @db.Date 
+  is_active                                                          Boolean?
+  employer                                                           employer[]
+  notification                                                       notification[]
+  professional                                                       professional[]
+  sessions                                                           sessions[]
+  gender_type                                                        gender_type?         @relation(fields: [gender], references: [gender_id], onDelete: NoAction, onUpdate: NoAction)
+  identification_type_users_identification_typeToidentification_type identification_type? @relation("users_identification_typeToidentification_type", fields: [identification_type], references: [identification_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+enum Role {
+  admin
+  profesional
+  empleador
+}
