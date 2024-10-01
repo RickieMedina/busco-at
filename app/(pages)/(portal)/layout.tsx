@@ -13,8 +13,9 @@ export default async function RootLayout({
   return (
         <SessionProvider session={session}>
             <TopMenu />
-            {children}
+            <div className="mx-auto max-w-7xl py-8">
+              {children}
+            </div>
         </SessionProvider>
-
   )
 }

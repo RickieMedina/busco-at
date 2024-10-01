@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 
-const patientTypeSchema = z.object({
+const createSchema = z.object({
     name: z.string()
           .min(1, "El nombre del tipo es requerido")
           .max(255, "El nombre del tipo debe tener menos de 255 caracteres")
@@ -14,13 +14,13 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        const { name } = patientTypeSchema.parse(body);
+        const { name } = createSchema.parse(body);
 
-        const newPatientType = await db.patient_type.create(
+        const newHealtType = await db.health_care_type.create(
             {data: { name}}
         )
 
-        return NextResponse.json(newPatientType, { status: 200 });
+        return NextResponse.json(newHealtType, { status: 200 });
 
     } catch (error) {
         console.log(error);
@@ -34,9 +34,9 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
 
     try {
-        const patientTypes = await db.patient_type.findMany();
+        const healtTypes = await db.health_care_type.findMany();
 
-        return NextResponse.json(patientTypes, { status: 200 });
+        return NextResponse.json(healtTypes, { status: 200 });
 
     } catch (error) {
         console.log(error);
@@ -48,8 +48,8 @@ export async function GET(request: Request) {
 const updateSchema = z.object({
     id: z.number().int().positive("El ID debe ser un número positivo"),
     name: z.string().min(1, "El nombre del tipo es requerido").max(255, "El nombre del tipo debe tener menos de 255 caracteres")
-});
 
+});
 export async function PUT(request: Request) {
 
     try {
@@ -57,21 +57,21 @@ export async function PUT(request: Request) {
 
         const { id, name } = updateSchema.parse(body);
 
-        const patientTypeExists = await db.patient_type.findFirst(
-            { where: { patient_type_id: id } }
+        const healtTypeExists = await db.health_care_type.findFirst(
+            { where: { health_care_type_id: id } }
         );
 
-        if(!patientTypeExists){
-            return NextResponse.json({ error: 'El tipo de paciente no existe' }, { status: 404 });
+        if(!healtTypeExists){
+            return NextResponse.json({ error: 'El área de atención no existe' }, { status: 404 });
         }
 
-        const updatedPatientType = await db.patient_type.update(
-            { where: {patient_type_id: id },
+        const updatedHealtType = await db.health_care_type.update(
+            { where: {health_care_type_id: id },
               data: { name } 
             }
         )
 
-        return NextResponse.json(updatedPatientType, { status: 200 });
+        return NextResponse.json(updatedHealtType, { status: 200 });
 
     } catch (error) {
         console.log(error);
@@ -93,27 +93,27 @@ export async function DELETE(request: Request) {
 
         const { id } = deleteSchema.parse(body);
 
-        const patientTypeExists = await db.patient_type.findFirst(
-            { where: { patient_type_id: id } }
+        const healtTypeExists = await db.health_care_type.findFirst(
+            { where: { health_care_type_id: id } }
         );
 
-        if(!patientTypeExists){
-            return NextResponse.json({ error: 'El tipo de paciente no existe' }, { status: 404 });
+        if(!healtTypeExists){
+            return NextResponse.json({ error: 'El area de atención no existe' }, { status: 404 });
         }
 
-        const patientTypeExistsInProfessional = await db.professional_patient.findFirst(
+        const healtTypeExistsInProfessional = await db.professional_patient.findFirst(
             { where: { patient_type_id: id } }
         );
         
-        if(patientTypeExistsInProfessional){
-            return NextResponse.json({ error: 'El tipo de paciente está asociado a un profesional' }, { status: 400 });
+        if(healtTypeExistsInProfessional){
+            return NextResponse.json({ error: 'El area de atención está asociada a un profesional' }, { status: 400 });
         }
 
-        const patientTypeDeleted = await db.patient_type.delete(
-            { where: { patient_type_id: id } }
+        const healtTypeDeleted = await db.health_care_type.delete(
+            { where: { health_care_type_id: id } }
         )
 
-        return NextResponse.json(patientTypeDeleted, { status: 200 });
+        return NextResponse.json(healtTypeDeleted, { status: 200 });
 
     } catch (error) {
         console.log(error);
