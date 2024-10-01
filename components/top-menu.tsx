@@ -29,7 +29,6 @@ export default function TopMenu() {
             <span className="sr-only">Abrir menú</span>
             </Button>
           </SheetTrigger>
-          { session.data?.user &&(
             <SheetContent side="right" className="w-full sm:w-[540px]">
               <SheetHeader>
                 <SheetTitle className="text-left">Perfil: {session.data?.user.role}</SheetTitle>
@@ -85,21 +84,6 @@ export default function TopMenu() {
                   </div>
                 )}
             </SheetContent>
-          )}
-          {/* { !session.data?.user && (
-            <SheetContent side="right" className="w-full sm:w-[540px]">
-            <SheetHeader>
-              <SheetTitle className="text-left">Perfil</SheetTitle>
-              <SheetDescription>Para acceder a las opciones de perfil en la plataforma inicia sesión</SheetDescription>
-            </SheetHeader>
-                <div className="mt-8 space-y-4">
-                  <Button variant="ghost" className="w-full justify-start text-lg" onClick={handleLogin}>
-                    Iniciar Sesión
-                  </Button>
-                </div>
-          </SheetContent>
-          )} */}
-          
         </Sheet>
          )}
          {!session.data?.user && (
