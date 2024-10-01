@@ -20,12 +20,13 @@ export default function TopMenu() {
   return (
     <>
       <nav className="flex justify-between items-center p-4 bg-primary text-primary-foreground">
-        <div className="text-xl font-bold">BuscoAT</div>
+        <div className="text-xl font-bold">BuscoAT</div>  
+        {session.data?.user && (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">
-              <Menu className="h-6 w-6" />
-              <span className="sr-only">Abrir menú</span>
+            <Menu className="h-6 w-6" />
+            <span className="sr-only">Abrir menú</span>
             </Button>
           </SheetTrigger>
           { session.data?.user &&(
@@ -85,7 +86,7 @@ export default function TopMenu() {
                 )}
             </SheetContent>
           )}
-          { !session.data?.user && (
+          {/* { !session.data?.user && (
             <SheetContent side="right" className="w-full sm:w-[540px]">
             <SheetHeader>
               <SheetTitle className="text-left">Perfil</SheetTitle>
@@ -97,9 +98,30 @@ export default function TopMenu() {
                   </Button>
                 </div>
           </SheetContent>
-          )}
+          )} */}
           
         </Sheet>
+         )}
+         {!session.data?.user && (
+           <Sheet open={isOpen} onOpenChange={setIsOpen}>
+             <SheetTrigger asChild>
+              <Button variant="ghost" >
+                Iniciar sesión
+                </Button>
+             </SheetTrigger>
+             <SheetContent side="right" className="w-full sm:w-[540px]">
+            <SheetHeader>
+              <SheetTitle className="text-left">Perfil</SheetTitle>
+              <SheetDescription>Para acceder a las opciones de perfil en la plataforma inicia sesión</SheetDescription>
+            </SheetHeader>
+                <div className="mt-8 space-y-4">
+                  <Button variant="ghost" className="w-full justify-start text-lg" onClick={handleLogin}>
+                    Iniciar Sesión
+                  </Button>
+                </div>
+              </SheetContent> 
+           </Sheet>
+         )} 
       </nav>
     </>
   )
