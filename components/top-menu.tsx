@@ -127,6 +127,9 @@ export default function TopMenu() {
                   <Button variant="ghost" className="w-full justify-start text-lg" onClick={handleCompleteProfile}>
                     Ir a completar Perfil
                   </Button>
+                  <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut()}>
+                      Cerrar sesión
+                  </Button>
                 </div>
               </SheetContent> 
            </Sheet>

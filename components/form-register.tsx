@@ -66,7 +66,12 @@ const formSchema = z.object({
   apellido: z.string().min(2, "El apellido debe tener al menos 2 caracteres"),
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-  dni: z.string().regex(/^\d{8}$/, "El DNI debe tener 8 dígitos"),
+  dni: z.string()
+  .min(8, "El DNI debe tener 8 dígitos")
+  .max(8, "El DNI debe tener 8 dígitos")
+  .refine((val) => /^\d+$/.test(val), {
+    message: "El DNI debe contener solo números",
+  }),
   fecha: z.string().refine((date) => new Date(date) <= new Date(), "La fecha no puede ser futura")
     .refine((date) => {
     const birthDate = new Date(date);
@@ -201,18 +206,26 @@ export default function RegisterForm() {
               </div>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <FormField
-                control={form.control}
-                name="dni"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>DNI</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  control={form.control}
+                  name="dni"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>DNI</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          inputMode="numeric"
+                          onKeyPress={(event) => {
+                            if (!/[0-9]/.test(event.key)) {
+                              event.preventDefault();
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               <FormField
                 control={form.control}
                 name="fecha"
@@ -228,29 +241,6 @@ export default function RegisterForm() {
               />
               </div>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                {/* <FormField
-                    control={form.control}
-                    name="genero"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Género</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                            <SelectTrigger>
-                            <SelectValue placeholder="Seleccione su género" />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            <SelectItem value="masculino">Masculino</SelectItem>
-                            <SelectItem value="femenino">Femenino</SelectItem>
-                            <SelectItem value="otro">Otro</SelectItem>
-                            <SelectItem value="prefiero-no-decir">Prefiero no decir</SelectItem>
-                        </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                /> */}
                 <FormField
                 control={form.control}
                 name="genero"
@@ -282,7 +272,16 @@ export default function RegisterForm() {
                     <FormItem>
                         <FormLabel>Teléfono</FormLabel>
                         <FormControl>
-                        <Input {...field} />
+                        <Input {...field} 
+                          placeholder="ejemplo: 3510011553"
+                          inputMode="numeric"
+                          maxLength={10}
+                          onKeyPress={(event) => {
+                            if (!/[0-9]/.test(event.key)) {
+                              event.preventDefault();
+                            }
+                          }}
+                        />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -379,7 +378,14 @@ export default function RegisterForm() {
                     <FormItem>
                         <FormLabel>Número</FormLabel>
                         <FormControl>
-                        <Input {...field} />
+                        <Input {...field} 
+                          inputMode="numeric"
+                          onKeyPress={(event) => {
+                            if (!/[0-9]/.test(event.key)) {
+                              event.preventDefault();
+                            }
+                          }}
+                        />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
