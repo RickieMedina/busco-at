@@ -37,11 +37,14 @@ model attachment_type {
 }
 
 model employer {
-  employer_id  Int         @id @default(autoincrement())
-  user_id      String?     @db.VarChar(255)
-  company_name String?     @db.VarChar(255)
-  phone        String?     @db.VarChar(255)
-  email        String?     @db.VarChar(255)
+  employer_id             Int         @id @default(autoincrement())
+  user_id                 String?     @db.VarChar(255)
+  company_name            String?     @db.VarChar(255)
+  phone                   String?     @db.VarChar(255)
+  email                   String?     @db.VarChar(255)
+  identification_type     Int?
+  identification_number   String?              @db.VarChar(255)
+  identification_type_employerToidentification_type identification_type? @relation("employer_identification_typeToidentification_type", fields: [identification_type], references: [identification_id], onDelete: NoAction, onUpdate: NoAction)
   users        users?      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   job_offer    job_offer[]
   rating       rating[]
@@ -65,6 +68,8 @@ model identification_type {
   identification_id                                    Int     @id @default(autoincrement())
   name                                                 String? @db.VarChar(255)
   users_users_identification_typeToidentification_type users[] @relation("users_identification_typeToidentification_type")
+  employers           employer[]   @relation("employer_identification_typeToidentification_type")
+  professionals       professional[] @relation("professional_identification_typeToidentification_type")
 }
 
 model job_offer {
@@ -122,12 +127,15 @@ model professional {
   health_care_type                                                 Int?
   patient_type                                                     Int?
   hourly_rate                                                      Float?
+  identification_type                                              Int?
+  identification_number                                            String?                 @db.VarChar(255)
   observations                                                     String?                  @db.VarChar(255)
   application                                                      application[]
   attachment                                                       attachment[]
   health_care_type_professional_health_care_typeTohealth_care_type health_care_type?        @relation("professional_health_care_typeTohealth_care_type", fields: [health_care_type], references: [health_care_type_id], onDelete: NoAction, onUpdate: NoAction)
   patient_type_professional_patient_typeTopatient_type             patient_type?            @relation("professional_patient_typeTopatient_type", fields: [patient_type], references: [patient_type_id], onDelete: NoAction, onUpdate: NoAction)
   users                                                            users?                   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  identification_type_professionalToidentification_type            identification_type?     @relation("professional_identification_typeToidentification_type", fields: [identification_type], references: [identification_id], onDelete: NoAction, onUpdate: NoAction)
   professional_care_type                                           professional_care_type[]
   professional_patient                                             professional_patient[]
   rating                                                           rating[]
@@ -192,6 +200,7 @@ model users {
   longitude                                                          Float?
   image                                                              String?              @db.VarChar(255)
   role                                                               Role                 @default(profesional)
+  profile_completed                                                  Boolean?             @default(false)
   created_at                                                         DateTime?            @db.Date 
   updated_at                                                         DateTime?            @db.Date 
   is_active                                                          Boolean?

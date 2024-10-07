@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSession, signIn, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -16,12 +16,16 @@ export default function TopMenu() {
   const handleLogin = () => {
     router.push("/login")
   }
+
+  const handleCompleteProfile = () => {
+    router.push("/completar-perfil")
+  }
   
   return (
     <>
       <nav className="flex justify-between items-center p-4 bg-primary text-primary-foreground">
         <div className="text-xl font-bold">BuscoAT</div>  
-        {session.data?.user && (
+        {session.data?.user && session.data.user.profile_completed && (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -101,6 +105,27 @@ export default function TopMenu() {
                 <div className="mt-8 space-y-4">
                   <Button variant="ghost" className="w-full justify-start text-lg" onClick={handleLogin}>
                     Iniciar Sesión
+                  </Button>
+                </div>
+              </SheetContent> 
+           </Sheet>
+         )} 
+         {session.data?.user && !session.data.user.profile_completed && (
+           <Sheet open={isOpen} onOpenChange={setIsOpen}>
+             <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Abrir menú</span>
+              </Button>
+            </SheetTrigger>
+             <SheetContent side="right" className="w-full sm:w-[540px]">
+            <SheetHeader>
+              <SheetTitle className="text-left">Perfil</SheetTitle>
+              <SheetDescription>Para acceder a las opciones de la plataforma completa tu perfil</SheetDescription>
+            </SheetHeader>
+                <div className="mt-8 space-y-4">
+                  <Button variant="ghost" className="w-full justify-start text-lg" onClick={handleCompleteProfile}>
+                    Ir a completar Perfil
                   </Button>
                 </div>
               </SheetContent> 
