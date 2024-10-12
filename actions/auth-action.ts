@@ -72,7 +72,7 @@ export const registerAction = async (value: z.infer<typeof formSchema>) => {
             const address: string = `${data.calle} ${data.numero}`
 
             const rol : Role = Object.values(Role).find((r) => r === data.rol) as Role
-           
+            //Agregar imagenes.. 
             await db.users.create({
                 data: {
                     name: data.nombre,

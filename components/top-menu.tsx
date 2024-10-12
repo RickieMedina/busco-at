@@ -18,7 +18,8 @@ export default function TopMenu() {
   }
 
   const handleCompleteProfile = () => {
-    router.push("/completar-perfil")
+    if(session.data?.user.role === 'empleador') { router.push("empleador/registro")}
+    if(session.data?.user.role === 'profesional') { router.push("profesional/registro")}
   }
   
   return (
