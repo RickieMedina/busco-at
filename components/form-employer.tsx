@@ -81,7 +81,7 @@ export default function FormularioEmployer() {
         });
     }
 
-    const CloseAndRedirect = () => {
+    const closeAndRedirect = () => {
         signOut({callbackUrl: '/login'})
         setAlerta(null)
     }
@@ -193,7 +193,7 @@ export default function FormularioEmployer() {
           tipo={alerta.tipo}
           titulo={alerta.titulo}
           mensaje={alerta.mensaje}
-          onClose={CloseAndRedirect}
+          onClose={closeAndRedirect}
         />
       )}
       {isPending && <Loading fullScreen text="Procesando tu registro..." />}

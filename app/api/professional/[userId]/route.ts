@@ -3,17 +3,16 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { z } from 'zod';
 
-// GET /api/employer/[id] BY user_id
+// GET /api/professional/[id] BY user_id
 export async function GET(request: Request,   { params }: { params: { id: string } }) {
 
     const { id } = params;
-
     try {
-        const employer  = await db.employer.findFirst({
+        const professional  = await db.professional.findFirst({
             where: { user_id : id }
         });
 
-        return NextResponse.json(employer, { status: 200 });
+        return NextResponse.json(professional, { status: 200 });
 
     } catch (error) {
         console.log(error);
@@ -21,21 +20,23 @@ export async function GET(request: Request,   { params }: { params: { id: string
     }
 }
 
-
 const formSchema = z.object({
-    companyName: z.string().min(1, 'El nombre de empleador es requerido'),
-    phone: z.string().min(10, 'El teléfono debe tener al menos 10 dígitos'),
     identification_type: z.string().min(1, 'Seleccione tipo de identificación'),
     identification_number: z.string().regex(/^(20|23|24|27|30|33|34)([0-9]{9}|-[0-9]{8}-[0-9])$/, 'CUIL/CUIT inválido'),
-    email: z.string().email('Correo electrónico inválido').optional()
-  })
+    health_care_type: z.string().min(1, 'El campo de atención es requerido'),
+    patient_type: z.string().min(1, 'El tipo de paciente es requerido'),
+    social_security: z.boolean().default(false),
+    private: z.boolean().default(false),
+    hourly_rate: z.string().min(1, 'El valor hora es requerido'),
+    observations: z.string().max(250, 'Las observaciones no pueden superar los 250 caracteres').optional()
+})
 
 export async function POST(request: Request,  { params }: { params: { userId: string } }) {
 
     try {
         const {userId} = params;
         const body = await request.json();
-
+        
         const {data, success} = formSchema.safeParse(body);
 
         const identification_type = await db.identification_type.findMany();
@@ -43,6 +44,20 @@ export async function POST(request: Request,  { params }: { params: { userId: st
 
         if (!identification_type_id) {
             return NextResponse.json({ error: 'Tipo de identificación inválido' }, { status: 400 });
+        }
+
+        const patient_type = await db.patient_type.findMany();
+        const id_patient_type =  patient_type.find((i) => i.name === data?.patient_type)?.patient_type_id;
+
+        if(!id_patient_type){
+            return NextResponse.json({ error: 'Tipo de paciente inválido' }, { status: 400 });
+        }
+       
+        const health_care_type = await db.health_care_type.findMany();
+        const id_health_care_type =  health_care_type.find((i) => i.name === data?.health_care_type)?.health_care_type_id;
+
+        if(!id_health_care_type){
+            return NextResponse.json({ error: 'Tipo de atención inválido' }, { status: 400 });
         }
 
         //Validate if user is already an employer or professional
@@ -60,15 +75,19 @@ export async function POST(request: Request,  { params }: { params: { userId: st
         }
 
         const profileAdded = await db.$transaction([
-            db.employer.create({
+            db.professional.create({
                 data: {
                     user_id: userId,
-                    company_name: data?.companyName,
-                    phone: data?.phone,
-                    identification_type:identification_type_id,
+                    identification_type: identification_type_id,
                     identification_number: data?.identification_number,
-                    email: data?.email
-            }}),
+                    health_care_type: id_health_care_type,
+                    patient_type: id_patient_type,
+                    social_security: data?.social_security,
+                    private: data?.private,
+                    hourly_rate: data?.hourly_rate ? parseFloat(data.hourly_rate) : undefined,
+                    observations: data?.observations
+                },
+            }),
             db.users.update({
                 where: { user_id: userId },
                 data: {  
@@ -79,7 +98,7 @@ export async function POST(request: Request,  { params }: { params: { userId: st
           ]);
 
         if(!profileAdded[0] || !profileAdded[1]){
-            return NextResponse.json({ error: 'Error al crear perfil de empleador' }, { status: 400 });
+            return NextResponse.json({ error: 'Error al crear perfil de profesional' }, { status: 400 });
         }
         else{
             return NextResponse.json(profileAdded, { status: 200 });

@@ -125,7 +125,7 @@ export default function TopMenu() {
               <SheetDescription>Para acceder a las opciones de la plataforma completa tu perfil</SheetDescription>
             </SheetHeader>
                 <div className="mt-8 space-y-4">
-                  <Button variant="ghost" className="w-full justify-start text-lg" onClick={handleCompleteProfile}>
+                  <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {handleCompleteProfile(); setIsOpen(false);}}>
                     Ir a completar Perfil
                   </Button>
                   <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut()}>
