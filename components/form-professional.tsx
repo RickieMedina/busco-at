@@ -20,6 +20,7 @@ import { CustomAlert } from './custom-alert'
 import { Loading } from './loading'
 import { Switch } from './ui/switch'
 import { Textarea } from './ui/textarea'
+import { FileUpload } from './file-upload'
 
 
 const formSchema = z.object({
@@ -30,6 +31,7 @@ const formSchema = z.object({
     social_security: z.boolean().default(false),
     private: z.boolean().default(false),
     hourly_rate: z.string().min(1, 'El valor hora es requerido'),
+    url: z.string().min(1, 'El archivo es requerido').optional(),
     observations: z.string().max(250, 'Las observaciones no pueden superar los 250 caracteres').optional()
 })
 
@@ -80,6 +82,7 @@ export default function FormularioProfessional() {
 
     const session = useSession();
     const [error, setError] = useState<string | null>(null);
+    const [fileUrl, setFileUrl] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
     
@@ -120,6 +123,11 @@ export default function FormularioProfessional() {
         setAlerta(null)
     }
 
+    const onfileUploaded = (url: string) => {
+        setFileUrl(url);
+        form.setValue("url", url);
+        console.log('file uploaded');
+    }
   return (
     <Card className="w-full max-w-2xl">
         <CardHeader className="flex justify-center items-center">
@@ -127,7 +135,7 @@ export default function FormularioProfessional() {
         </CardHeader>
         <CardContent>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                  <h2><strong>Especialización</strong></h2>   
                  <FormField
                     control={form.control}
@@ -270,7 +278,7 @@ export default function FormularioProfessional() {
                         <FormMessage />
                     </FormItem>
                     )}
-                />  
+                /> 
                 <FormField
                     control={form.control}
                     name="observations"
@@ -285,6 +293,13 @@ export default function FormularioProfessional() {
                     </FormItem>
                     )}
                 /> 
+                <h2><strong>Adjuntos</strong></h2>
+                <FileUpload 
+                    label="Curriculum vitae"
+                    allowedTypes={["image/jpeg", "image/png", "application/pdf"]}
+                    onFileUploaded={onfileUploaded}
+                    maxSizeInBytes={5000000}
+                 />
                 <Button type="submit" 
                         className="w-full"
                         disabled={isPending}

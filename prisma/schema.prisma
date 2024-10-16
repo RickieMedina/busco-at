@@ -22,6 +22,7 @@ model attachment {
   attachment_id                                               Int              @id @default(autoincrement())
   professional_id                                             Int?
   attachment_type                                             Int?
+  observation                                                 String?          @db.VarChar(255)
   created_at                                                  DateTime?        @db.Date
   end_date                                                    DateTime?        @db.Date
   file_location                                               String?          @db.VarChar(255)

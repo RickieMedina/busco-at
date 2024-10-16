@@ -28,6 +28,7 @@ const formSchema = z.object({
     social_security: z.boolean().default(false),
     private: z.boolean().default(false),
     hourly_rate: z.string().min(1, 'El valor hora es requerido'),
+    url: z.string().min(1, 'El archivo es requerido').optional(),
     observations: z.string().max(250, 'Las observaciones no pueden superar los 250 caracteres').optional()
 })
 
@@ -74,30 +75,43 @@ export async function POST(request: Request,  { params }: { params: { userId: st
             return NextResponse.json({ error: 'Usuario ya es empleador o profesional' }, { status: 400 });
         }
 
-        const profileAdded = await db.$transaction([
-            db.professional.create({
-                data: {
-                    user_id: userId,
-                    identification_type: identification_type_id,
-                    identification_number: data?.identification_number,
-                    health_care_type: id_health_care_type,
-                    patient_type: id_patient_type,
-                    social_security: data?.social_security,
-                    private: data?.private,
-                    hourly_rate: data?.hourly_rate ? parseFloat(data.hourly_rate) : undefined,
-                    observations: data?.observations
-                },
-            }),
-            db.users.update({
+        const profileAdded = await db.$transaction(async (transaction) => {
+            // Create the professional and take the id to create the attachment
+            const professional = await transaction.professional.create({
+              data: {
+                user_id: userId,
+                identification_type: identification_type_id,
+                identification_number: data?.identification_number,
+                health_care_type: id_health_care_type,
+                patient_type: id_patient_type,
+                social_security: data?.social_security,
+                private: data?.private,
+                hourly_rate: data?.hourly_rate ? parseFloat(data.hourly_rate) : undefined,
+                observations: data?.observations
+              },
+            });
+          
+            const attachment = await transaction.attachment.create({
+              data: {
+                professional_id: professional.professional_id, 
+                attachment_type: 1, //type 1 is c.v
+                created_at: new Date(),
+                file_location: data?.url
+              },
+            });
+
+            const updated = await transaction.users.update({
                 where: { user_id: userId },
                 data: {  
-                        profile_completed: true,
-                        updated_at: new Date()//TODO: check if is necessary update type to date time
-                      },
-            }),
-          ]);
+                  profile_completed: true,
+                  updated_at: new Date() 
+                },
+              });
+          
+            return [professional, attachment, updated];
+          });
 
-        if(!profileAdded[0] || !profileAdded[1]){
+        if(!profileAdded[0] || !profileAdded[1] || !profileAdded[2]){
             return NextResponse.json({ error: 'Error al crear perfil de profesional' }, { status: 400 });
         }
         else{

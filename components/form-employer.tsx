@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage, Form } from './ui/form'
 import { signOut, useSession } from 'next-auth/react'
@@ -48,7 +47,6 @@ export default function FormularioEmployer() {
     const [error, setError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
-    const router = useRouter();
     
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema)
