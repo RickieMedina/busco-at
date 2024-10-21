@@ -75,7 +75,10 @@ model identification_type {
 
 model job_offer {
   job_offer_id        Int           @id @default(autoincrement())
+  name                String?       @db.VarChar(255)
+  description         String?       @db.VarChar(255)
   created_date        DateTime?     @db.Date
+  update_date         DateTime?     @db.Date
   end_date            DateTime?     @db.Date
   employer_id         Int?
   gender              Int?

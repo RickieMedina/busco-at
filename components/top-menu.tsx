@@ -53,7 +53,7 @@ export default function TopMenu() {
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/admin/pacientes'); setIsOpen(false);}}>
                       Tipos Paciente
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut()}>
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut({redirectTo:'/dashboard'})}>
                       Cerrar sesión
                     </Button>
                   </div>
@@ -68,7 +68,7 @@ export default function TopMenu() {
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => setIsOpen(false)}>
                       Configuración
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut()}>
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut({redirectTo:'/dashboard'})}>
                       Cerrar sesión
                     </Button>
                   </div>
@@ -77,13 +77,16 @@ export default function TopMenu() {
                 {/* section rol empleador */}
                 {session.data?.user.role === "empleador" && (
                   <div className="mt-8 space-y-4">
+                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/dashboard'); setIsOpen(false);}}>
+                      Inicio
+                    </Button>
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => setIsOpen(false)}>
                       Perfil
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => setIsOpen(false)}>
-                      Configuración
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/empleador/ofertas'); setIsOpen(false);}}>
+                      Mis Ofertas
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut()}>
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut({redirectTo:'/dashboard'})}>
                       Cerrar sesión
                     </Button>
                   </div>
@@ -128,7 +131,7 @@ export default function TopMenu() {
                   <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {handleCompleteProfile(); setIsOpen(false);}}>
                     Ir a completar Perfil
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut()}>
+                  <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut({redirectTo:'/dashboard'})}>
                       Cerrar sesión
                   </Button>
                 </div>

@@ -25,83 +25,20 @@ import {
 } from "@/components/ui/form"
 import { registerAction } from "@/actions/auth-action"
 import { useRouter } from "next/navigation"
-
-const provincias = [
-  { id: "buenosaires", nombre: "Buenos Aires" },
-  { id: "cordoba", nombre: "Córdoba" },
-  { id: "santafe", nombre: "Santa Fe" },
-]
-
-const gender=[
-    {
-        "gender_id": 1,
-        "name": "Masculino"
-    },
-    {
-        "gender_id": 2,
-        "name": "Femenino"
-    },
-    {
-        "gender_id": 3,
-        "name": "Otro"
-    }
-]
-
-const localidadesPorProvincia = {
-  buenosaires: ["La Plata", "Mar del Plata", "Bahía Blanca"],
-  cordoba: ["Córdoba", "Villa María", "Río Cuarto"],
-  santafe: ["Rosario", "Santa Fe", "Rafaela"],
-}
+import { gender } from "@/lib/constants/gender"
+import { localidadesPorProvincia } from "@/lib/constants/localidades-por-provincia"
+import { provincias } from "@/lib/constants/provincias"
+import { formRegisterSchema } from "@/lib/zod"
 
 const rol =[
     "profesional",
     "empleador"
 ]
-
+//TODO: Mover estas constantes a un archivo de configuración
 const MAX_FILE_SIZE = 5000000
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
 
-const formSchema = z.object({
-  nombre: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-  apellido: z.string().min(2, "El apellido debe tener al menos 2 caracteres"),
-  email: z.string().email("Email inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-  dni: z.string()
-  .min(8, "El DNI debe tener 8 dígitos")
-  .max(8, "El DNI debe tener 8 dígitos")
-  .refine((val) => /^\d+$/.test(val), {
-    message: "El DNI debe contener solo números",
-  }),
-  fecha: z.string().refine((date) => new Date(date) <= new Date(), "La fecha no puede ser futura")
-    .refine((date) => {
-    const birthDate = new Date(date);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age >= 18;
-  }, "Debes ser mayor de 18 años para registrarte"),
-  genero: z.string().min(1, "Seleccione un género"),
-  telefono: z.string().regex(/^\d{10}$/, "El teléfono debe tener 10 dígitos"),
-  pais: z.literal("Argentina"),
-  provincia: z.string().min(1, "Seleccione una provincia"),
-  localidad: z.string().min(1, "Seleccione una localidad"),
-  calle: z.string().min(1, "Ingrese el nombre de la calle"),
-  numero: z.string().min(1, "Ingrese el número de la calle"),
-//   imagenPerfil: z
-//     .any()
-//     .refine((files) => files?.length == 1, "La imagen es requerida")
-//     .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `El tamaño máximo es 5MB.`)
-//     .refine(
-//       (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-//       "Solo se aceptan archivos .jpg, .jpeg, .png y .webp"
-//     ),
-  rol: z.string().min(1, "Selecione un rol"),
-})
-
-type FormValues = z.infer<typeof formSchema>
+type FormValues = z.infer<typeof formRegisterSchema>
 
 export default function RegisterForm() {
     
@@ -111,18 +48,13 @@ export default function RegisterForm() {
     const router = useRouter();
     
     const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formRegisterSchema),
     defaultValues: {
         pais: "Argentina",
     },
     })
 
-//   const onSubmit = (values: FormValues) => {
-//     console.log(values)
-//     // Aquí iría la lógica para enviar los datos al servidor
-//   }
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formRegisterSchema>) {
     
     startTransition(async () => {
 

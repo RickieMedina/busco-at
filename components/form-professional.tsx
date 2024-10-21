@@ -21,22 +21,11 @@ import { Loading } from './loading'
 import { Switch } from './ui/switch'
 import { Textarea } from './ui/textarea'
 import { FileUpload } from './file-upload'
+import { formProfessionalSchema } from '@/lib/zod'
 
+type FormValues = z.infer<typeof formProfessionalSchema>
 
-const formSchema = z.object({
-    identification_type: z.string().min(1, 'Seleccione tipo de identificación'),
-    identification_number: z.string().regex(/^(20|23|24|27|30|33|34)([0-9]{9}|-[0-9]{8}-[0-9])$/, 'CUIL/CUIT inválido'),
-    health_care_type: z.string().min(1, 'El campo de atención es requerido'),
-    patient_type: z.string().min(1, 'El tipo de paciente es requerido'),
-    social_security: z.boolean().default(false),
-    private: z.boolean().default(false),
-    hourly_rate: z.string().min(1, 'El valor hora es requerido'),
-    url: z.string().min(1, 'El archivo es requerido').optional(),
-    observations: z.string().max(250, 'Las observaciones no pueden superar los 250 caracteres').optional()
-})
-
-type FormValues = z.infer<typeof formSchema>
-
+//TODO: Mover a API
 const identification_type=[
     {
         "identification_id": 2,
@@ -87,11 +76,11 @@ export default function FormularioProfessional() {
     const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
     
     const form = useForm<FormValues>({
-        resolver: zodResolver(formSchema)
+        resolver: zodResolver(formProfessionalSchema)
     })
 
     
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formProfessionalSchema>) {
         console.log('values',values)
         startTransition(async () => {
             setError(null)
