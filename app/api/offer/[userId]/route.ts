@@ -31,7 +31,7 @@ export async function POST(request: Request, { params }: { params: { userId: str
             return NextResponse.json({error: 'Debe seleccionar al menos un horario'}, {status:400});
         }
      
-        const address: string = `${data.address.calle} ${data.address.numero}`;
+        const address: string = `${data.address.calle},,${data.address.numero},,${data.address.localidad},,${data.address.provincia}`;
         
         const days_hours: string [] = data.schedule.map((s) => {
              return `${s.day}-${s.startTime}-${s.endTime}`
@@ -50,6 +50,8 @@ export async function POST(request: Request, { params }: { params: { userId: str
                 require_certificate: data.requiresCertificate,
                 days_hours: days_hours.join(','),
                 address: address,
+                latitude: data.location.latitude,
+                longitude: data.location.longitude,
                 diagnosis: data.diagnosis,
                 social_security: data.paymentType.socialSecurity,
                 private: data.paymentType.private,

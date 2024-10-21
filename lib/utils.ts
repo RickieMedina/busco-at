@@ -18,9 +18,13 @@ export const  mapIOfferToTypeOffer = (offers: IOffer[]): Offer[] => {
                   gender: offer.gender ,// debería pasarlo a string
                   address: {
                   pais: "Argentina",
-                  calle: offer.address.split(' ')[0], //TODO: revisar como guardare la dirección. 
-                  numero: offer.address.split(' ')[1]
+                  calle: offer.address.split(',,')[0], //TODO: revisar como guardare la dirección. 
+                  numero: offer.address.split(',,')[1]
                   },
+                  location: {
+                    latitude: offer.latitude,
+                    longitude: offer.longitude
+                    },
                   ageRange: {
                   min: offer.age_from,
                   max: offer.age_to

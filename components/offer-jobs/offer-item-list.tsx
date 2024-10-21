@@ -133,9 +133,14 @@ return (
                       </div>
                     </div>
                   </div>
+                  <div>
                   <DialogFooter>
-                    <Button type="button" onClick={() => setShowOfertaDetails(false)}>Cerrar</Button>
+                    <Button type="button"
+                            size="lg"
+                           onClick={() => setShowOfertaDetails(false)}>Cerrar
+                    </Button>
                   </DialogFooter>
+                  </div>
                 </DialogContent>
               </Dialog>
             {/* <Button variant="outline"

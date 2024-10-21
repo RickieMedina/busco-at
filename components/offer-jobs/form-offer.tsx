@@ -19,11 +19,13 @@ import { gender } from "@/lib/constants/gender"
 import { provincias } from "@/lib/constants/provincias"
 import { localidadesPorProvincia } from "@/lib/constants/localidades-por-provincia"
 import { formOfferSchema } from "@/lib/zod"
+import MapLocationPicker from "../map-location-picker"
 
 
 export default function JobOfferForm() {
   const [schedule, setSchedule] = useState<{ day: string; startTime: string; endTime: string }[]>([])
   const [localidades, setLocalidades] = useState<string[]>([])
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -42,6 +44,10 @@ export default function JobOfferForm() {
         calle: "",
         numero: "",
       },
+      location: {
+        latitude: 0,
+        longitude:0
+      },
       ageRange: { min: 18, max: 65 },
       requiresCertificate: false,
       paymentType: { socialSecurity: false, private: false },
@@ -50,6 +56,12 @@ export default function JobOfferForm() {
       schedule: [],
     },
   })
+
+  const handleLocationConfirm = (lat: number, lng: number) => {
+    setLocation({ lat, lng })
+    form.setValue("location.latitude", lat)
+    form.setValue("location.longitude", lng)
+  }
 
   async function onSubmit(values: z.infer<typeof formOfferSchema>) {
     console.log(values)
@@ -80,6 +92,8 @@ export default function JobOfferForm() {
   const close = () => {
     //Aqui podemos redireccionar
     setAlerta(null)
+    form.reset()
+    setSchedule([])
   }
 
   return (
@@ -164,6 +178,7 @@ export default function JobOfferForm() {
                     form.setValue("schedule", newSchedule)
                   }}
                 />
+                
                 </div>
                 <div className="w-1/2 space-y-2">
                   <h2 className="text-lg font-medium">Lugar de trabajo</h2>
@@ -270,8 +285,57 @@ export default function JobOfferForm() {
                             )}
                         />
                       </div>
+                      <div className="space-y-2 mb-8">
+                        <FormLabel className="">Coordenadas de ubicación</FormLabel>
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 ">
+                          <FormField
+                              control={form.control}
+                              name="location.latitude"
+                              render={({ field }) => (
+                              <FormItem>
+                                  <FormControl>
+                                  <Input {...field} 
+                                    readOnly
+                                    placeholder="latitud: -34.61315"
+                                    inputMode="numeric"
+                                    onKeyPress={(event) => {
+                                      if (!/[0-9]/.test(event.key)) {
+                                        event.preventDefault();
+                                      }
+                                    }}
+                                  />
+                                  </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                              )}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="location.longitude"
+                              render={({ field }) => (
+                              <FormItem>
+                                  <FormControl>
+                                  <Input {...field}
+                                    placeholder="longitud: -58.37723" 
+                                    inputMode="numeric"
+                                    readOnly
+                                    onKeyPress={(event) => {
+                                      if (!/[0-9]/.test(event.key)) {
+                                        event.preventDefault();
+                                      }
+                                    }}
+                                  />
+                                  </FormControl>
+                                  <FormMessage />
+                              </FormItem>
+                              )}
+                          />
+                          <MapLocationPicker onLocationConfirm={handleLocationConfirm} />
+                        </div>
+                        <FormDescription>*Esta ubicación se mostrara en el mapa que acompañara a su publicación.</FormDescription>
+                      </div>
                       <div className="grid gap-2">
-                        <h2 className="text-lg font-medium">Detalles adicionales</h2>
+                        <h2 className="text-lg font-medium mt-2">Detalles adicionales</h2>
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                           <FormField
                                   control={form.control}

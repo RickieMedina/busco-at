@@ -90,6 +90,20 @@ export  const formOfferSchema = object({
       calle: string().min(1, "Ingrese el nombre de la calle"),
       numero: string().min(1, "Ingrese el número de la calle"),
     }),
+    location: object({
+      latitude: number().min(-90, "Latitud inválida").max(90, "Latitud inválida").refine(
+        (lat) => lat !== 0,
+        {
+          message: "Seleccione una ubicación en el mapa",
+        }
+      ),
+      longitude: number().min(-180, "Longitud inválida").max(180, "Longitud inválida").refine(
+        (lng) => lng !== 0,
+        {
+          message: "Seleccione una ubicación en el mapa",
+        }
+      )
+    }),
     ageRange: object({
       min: number().min(18, "La edad mínima es 18"),
       max: number().max(100, "La edad máxima es 100"),
@@ -97,20 +111,14 @@ export  const formOfferSchema = object({
     requiresCertificate: boolean(),
     paymentType: object({
       socialSecurity: boolean(),
-      private: boolean()}),
-    // }).refine(
-    //   (data) => data.socialSecurity== false &&  data.private == false,
-    //   {
-    //     message: "Al menos uno de los tipos de pago debe ser seleccionado",
-    //     path: ["paymentType"], 
-    //   }
-    // ),
+      private: boolean()
+    }),
     diagnosis: string().min(1, "El diagnóstico es requerido"),
     additionalObservations: string(),
     schedule: array(object({
       day: string(),
       startTime: string(),
       endTime: string(),
-    })),
+    }))
   })
 

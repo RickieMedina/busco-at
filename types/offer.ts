@@ -12,6 +12,10 @@ export type Offer = {
       calle: string
       numero: string
     },
+    location: {
+      latitude?: number
+      longitude?: number
+    },
     ageRange: {
       min: number
       max: number
