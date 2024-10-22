@@ -26,6 +26,9 @@ export function ScheduleSelector({ schedule, setSchedule }: ScheduleSelectorProp
 
   const addSchedule = () => {
     if (selectedDay && selectedStartTime && selectedEndTime) {
+      if(selectedStartTime < selectedEndTime){
+        return
+      }
       const newSchedule = [...schedule, { day: selectedDay, startTime: selectedStartTime, endTime: selectedEndTime }]
       setSchedule(newSchedule)
       setSelectedDay("")
