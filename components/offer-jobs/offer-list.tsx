@@ -31,6 +31,7 @@ return (
             {offers.map((offer) => (
                     <OfferItemList offer={offer}
                                    onViewOffer={(id) => onViewOffer(id)}
+                                   isApplication={false}
                     >
                     </OfferItemList>
             ))}

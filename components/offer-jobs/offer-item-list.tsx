@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger} from "../ui/dialog";
@@ -9,15 +9,25 @@ import { Label } from "../ui/label";
 import { calculateDaysAgo } from "@/utils/calculate-days-ago";
 import { gender } from "@/lib/constants/gender";
 import { Offer } from "@/types/offer";
+import ConfirmDialog from "../application/application-dialog";
+import { useSession } from "next-auth/react";
+import { Loading } from "../loading";
+import { CustomAlert } from "../custom-alert";
 
 
 interface OfferItemListProps {
     onViewOffer?: (id: number) => void;
     offer: Offer;
+    isApplication: boolean;
 }
 
 export default function OfferItemList(props: OfferItemListProps) {
   const [showOfertaDetails, setShowOfertaDetails] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
+    
+  const session = useSession();
 
   //TODO: impement get address  with full location
   const getLocation = (address: Offer['address']) => {
@@ -27,6 +37,64 @@ export default function OfferItemList(props: OfferItemListProps) {
   const onViewOffer = (id: number) => {
       console.log('view offer item', id);
       //props.onViewOffer(id);
+  }
+
+  const handleConfirmApplication = () => {
+
+    setShowConfirmDialog(false);
+    startTransition(async () => {
+      if(!session.data?.user.role){
+          setAlerta({
+              tipo: 'error',
+              titulo: '¡Error en la postulación!',
+              mensaje: 'No puede postularse a una oferta si aún no ha completado su perfil como profesional'
+          })
+          return
+      }
+      
+      if(session.data?.user.role !== 'profesional'){
+          setAlerta({
+              tipo: 'error',
+              titulo: '¡Error en la postulación!',
+              mensaje: 'Para postularse debe tener perfil registrado como profesional'
+          })
+          return
+      }      
+      const response = await fetch(`/api/application/${session.data?.user.user_id}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              offer_id: props.offer.id
+          })
+      })
+      
+      if (!response.ok) {
+          const data = await response.json()
+          setAlerta({
+              tipo: 'error',
+              titulo: '¡Error en la postulación!',
+              mensaje: data.error
+          })
+          return
+      }
+      else{
+          setAlerta({
+              tipo: 'exito',
+              titulo: '¡Postulación exitosa!',
+              mensaje: 'Su postulación fue exitosa, puede ver los detalles en su perfil'
+          })
+      }
+      });
+  }
+
+  const onApplication = () => {
+     setShowConfirmDialog(true);
+  }
+
+  const onClose = () => {
+    setAlerta(null)
   }
 
 return (
@@ -134,18 +202,46 @@ return (
                     </div>
                   </div>
                   <div>
+                  {alerta && (
+                  <CustomAlert
+                      tipo={alerta.tipo}
+                      titulo={alerta.titulo}
+                      mensaje={alerta.mensaje}
+                      onClose={onClose}
+                    />
+                  )}
+                   {isPending && <Loading fullScreen text="Procesando postulación..." />}
                   <DialogFooter>
-                    <Button type="button"
-                            size="lg"
-                           onClick={() => setShowOfertaDetails(false)}>Cerrar
-                    </Button>
+                    { !props.isApplication &&
+                      <Button type="button"
+                              size="lg"
+                              onClick={() => setShowOfertaDetails(false)}>Cerrar
+                       </Button>
+                    }
+                    { props.isApplication && (
+                      <>
+                        <Button type="button"
+                                size="lg"
+                                variant="outline"
+                                onClick={() => setShowOfertaDetails(false)}>Cerrar
+                        </Button>
+                        <Button type="button"
+                                size="lg"
+                                onClick={onApplication}>
+                          Postularme
+                        </Button>
+                      </>
+                    )}
                   </DialogFooter>
+                  <ConfirmDialog
+                    isOpen={showConfirmDialog}
+                    onConfirm={handleConfirmApplication}
+                    onCancel={() => setShowConfirmDialog(false)}
+                    message="¿Estás seguro de que deseas postularte?"
+                  />
                   </div>
                 </DialogContent>
               </Dialog>
-            {/* <Button variant="outline"
-                onClick={() => {onViewOffer(props.offer.id!)}}
-                >Ver detalle</Button> */}
             </CardFooter>
         </Card>
     </div>

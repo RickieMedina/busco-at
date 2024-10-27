@@ -12,7 +12,7 @@ model application {
   professional_id    Int?
   job_offer_id       Int?
   application_date   DateTime?     @db.Date
-  application_status String?       @db.VarChar(255)
+  application_status Status        @default(pendiente)
   job_offer          job_offer?    @relation(fields: [job_offer_id], references: [job_offer_id], onDelete: NoAction, onUpdate: NoAction)
   professional       professional? @relation(fields: [professional_id], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
   payment            payment[]
@@ -220,4 +220,11 @@ enum Role {
   admin
   profesional
   empleador
+}
+
+enum Status {
+  aceptada
+  rechazada
+  pendiente
+  cancelada
 }

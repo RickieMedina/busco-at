@@ -6,7 +6,7 @@ import { IOffer } from '@/lib/interfaces/offer';
 
 export default async function OfferList() {
   
-  const response = await fetch(`http://localhost:3000/api/offer`,{ next: { revalidate: 60 } } );
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/offer`,{ next: { revalidate: 60 } } );
   const offers: IOffer[] = await response.json();
   const mappedOffers = mapIOfferToTypeOffer(offers);
 
@@ -15,6 +15,7 @@ export default async function OfferList() {
       {mappedOffers.map((offer) => (
         <OfferItemList
           offer={offer}
+          isApplication={true}
         />
       ))}
     </div>
