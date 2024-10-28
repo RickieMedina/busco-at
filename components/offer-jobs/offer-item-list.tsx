@@ -60,7 +60,7 @@ export default function OfferItemList(props: OfferItemListProps) {
           })
           return
       }      
-      const response = await fetch(`/api/application/${session.data?.user.user_id}`, {
+      const response = await fetch(`/api/application/user/${session.data?.user.user_id}`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'

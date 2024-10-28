@@ -226,5 +226,5 @@ enum Status {
   aceptada
   rechazada
   pendiente
-  cancelada
+  cancelada //TODO: validar si este estado será de la oferta. 
 }
