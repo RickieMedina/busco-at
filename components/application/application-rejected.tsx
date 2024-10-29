@@ -2,27 +2,23 @@
 
 import { useState, useTransition } from "react";
 import { Status } from "@prisma/client";
-import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { CustomAlert } from "../custom-alert";
 import { Loading } from "../loading";
 
 interface RejectedDialogProps {
-    //onConfirm: () => void;
-    // onCancel: () => void;
+    onConfirm: () => void;
     id: number;
   }
 
   //TODO: refactor this component with the ConfirmApplication component
-export default function RejectedApplication({ id } : RejectedDialogProps){
+export default function RejectedApplication({ id, onConfirm } : RejectedDialogProps){
 
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [isPending, startTransition] = useTransition();
     const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
     const status: Status = 'rechazada';
-    const router = useRouter();
-
 
     
 const handleConfirm = async () => {
@@ -53,20 +49,18 @@ const handleConfirm = async () => {
                 titulo: '¡Postulación rechazada!',
                 mensaje: 'La postulación fue rechazada exitosamente'
             })
-            router.refresh();
+            onConfirm();
         }
     
     })
 }
 
 const onClose = () => {
-    router.refresh();
     setAlerta(null);
 }
 
 const onCancel = () => {
     setIsConfirmVisible(false);
-    console.log('cancel');
 }
 
 return (

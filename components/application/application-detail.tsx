@@ -1,61 +1,58 @@
+'use client'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Users } from "@/lib/interfaces/user"
 import { Application } from "@/lib/interfaces/application"
 import ProfileViewerWrapper from "../profile/profile-view-wrapper"
 import ConfirmApplication from "./application-confirm"
 import RejectedApplication from "./application-rejected"
+import { useEffect, useState } from "react"
+import { Offer } from "@/types/offer"
 import JobOfferSelector from "../offer-jobs/offer-selector"
 
 
-// interface Professional {
-//   professional_id: number
-//   hourly_rate: number
-//   identification_number: string
-// }
-
-// interface Application {
-//   application_id: number
-//   professional_id: number
-//   job_offer_id: number
-//   application_date: string
-//   application_status: string
-//   professional: Professional
-//   users: User
-// }
-
 interface ApplicationListProps {
-  offer_id: number
+  //offer_id: number
+  offers: Offer[]
 }
 
-async function getApplications(offer_id: number): Promise<Application[]> {
+export default function ApplicationList({  offers }: ApplicationListProps) {
+  const [applications, setApplications] = useState<Application[]>([])
+  const [offer_id, setOfferId] = useState<number>(0)
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/application/offers/${offer_id}`,{ cache: 'no-cache'} )
-  if (!response.ok) {
-    throw new Error('Failed to fetch applications')
-  }
-  return response.json()
-}
-
-export default async function ApplicationList({ offer_id }: ApplicationListProps) {
-  let applications: Application[] = []
-
-  try {
-    console.log('Fetching ApplicationList for offer:', offer_id)
-    applications = await getApplications(offer_id)
-  } catch (error) {
-    console.error('Error fetching applications:', error)
+  const fetchApplications = async () => {
+    const response = await fetch(`/api/application/offers/${offer_id}`)
+    const applications = await response.json()
+    setApplications(applications)
   }
 
+  useEffect(() => {
+    fetchApplications()
+  }, [offer_id])
+
+
+  const handleUpdate = () => {
+    fetchApplications()
+  }
+
+  const handleSelectedOffer = (offerId: number) => {
+    setOfferId(offerId)
+   // fetchApplications()
+  }
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle>Gestionar Postulaciones</CardTitle>
-        <CardDescription>
+        <CardDescription >
           Revise y gestione las postulaciones para esta oferta
         </CardDescription>
+        <div className="w-full md:w-1/2">
+          <JobOfferSelector
+            offers={offers}
+            onSelectedOffer={(offerId) => handleSelectedOffer(offerId)}
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <Table>
@@ -70,6 +67,15 @@ export default async function ApplicationList({ offer_id }: ApplicationListProps
             </TableRow>
           </TableHeader>
           <TableBody>
+            {
+              applications.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
+                    No hay postulaciones
+                  </TableCell>
+                </TableRow>
+              )
+            }
             {applications.map((app) => (
               <TableRow key={app.application_id}>
                 <TableCell>{app.professional?.users.name} {app.professional?.users.last_name}</TableCell>
@@ -80,9 +86,11 @@ export default async function ApplicationList({ offer_id }: ApplicationListProps
                 <TableCell>
                   <div className="flex space-x-2">
                     <ConfirmApplication
+                        onConfirm={handleUpdate}
                         id= {app.application_id}
                     />
                     <RejectedApplication
+                        onConfirm={handleUpdate}
                         id= {app.application_id}
                     />
                   </div>

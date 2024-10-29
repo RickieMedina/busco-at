@@ -2,8 +2,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import JobOfferForm from "./form-offer";
 import OfferList from "./offer-list";
 import ApplicationList from "../application/application-detail";
+import { Offer } from "@/types/offer";
 
-export default function OfferTabsMenu() {
+interface OfferTabsProps {
+    offers: Offer[];
+}
+
+export default function OfferTabsMenu({offers}: OfferTabsProps) {
+    
 return (
     <>
     <div>
@@ -14,14 +20,16 @@ return (
                 <TabsTrigger value="postulaciones">Gestionar Postulaciones</TabsTrigger>
             </TabsList>
             <TabsContent value="ofertas">
-                <OfferList/>
+                <OfferList
+                    offers={offers}
+                />
             </TabsContent>
             <TabsContent value="nueva-oferta">
                 <JobOfferForm/>
             </TabsContent>
             <TabsContent value="postulaciones">
-                <ApplicationList 
-                    offer_id={8}
+                <ApplicationList
+                    offers={offers} 
                 />
             </TabsContent>
         </Tabs>

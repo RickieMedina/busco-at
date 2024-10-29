@@ -6,23 +6,18 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Status } from "@prisma/client";
 import { CustomAlert } from "../custom-alert";
 import { Loading } from "../loading";
-import { useRouter } from "next/navigation";
 
 interface ConfirmDialogProps {
-    //onConfirm: () => void;
-    // onCancel: () => void;
+    onConfirm: () => void;
     id: number;
   }
   
-export default function ConfirmApplication({ id } : ConfirmDialogProps){
+export default function ConfirmApplication({ id, onConfirm } : ConfirmDialogProps){
 
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [isPending, startTransition] = useTransition();
     const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
     const status: Status = 'aceptada';
-    const router = useRouter();
-
-
     
 const handleConfirm = async () => {
 
@@ -52,7 +47,7 @@ const handleConfirm = async () => {
                 titulo: '¡Postulación aceptada!',
                 mensaje: 'La postulación fue aceptada exitosamente'
             })
-            router.refresh();
+            onConfirm();
         }
     
     })
