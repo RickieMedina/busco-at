@@ -29,6 +29,9 @@ import { gender } from "@/lib/constants/gender"
 import { localidadesPorProvincia } from "@/lib/constants/localidades-por-provincia"
 import { provincias } from "@/lib/constants/provincias"
 import { formRegisterSchema } from "@/lib/zod"
+import MapLocationPicker from "./map-location-picker"
+import { Loading } from "./loading"
+import { CustomAlert } from "./custom-alert"
 
 const rol =[
     "profesional",
@@ -41,16 +44,27 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/web
 type FormValues = z.infer<typeof formRegisterSchema>
 
 export default function RegisterForm() {
-    
-    const [error, setError] = useState<string | null>(null);
+  const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
+    const [error, setError] = useState<string | null>(null);  
     const [isPending, startTransition] = useTransition();
     const [localidades, setLocalidades] = useState<string[]>([])
+    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
     const router = useRouter();
     
     const form = useForm<FormValues>({
     resolver: zodResolver(formRegisterSchema),
     defaultValues: {
+      address:{
         pais: "Argentina",
+        provincia: "",
+        localidad: "",
+        calle: "",
+        numero: "",
+      },
+      location: {
+        latitude: 0,
+        longitude:0
+      },
     },
     })
 
@@ -66,9 +80,25 @@ export default function RegisterForm() {
         return;
     }
     else{
-        router.push("/dashboard");
+        setAlerta({
+          tipo: 'exito',
+          titulo: '¡Se registro con éxito!',
+          mensaje: 'Ya eres usuario, completa tu perfil para poder usar todos los servicios.'
+        })
     }
     });
+}
+
+const close = () => {
+  setAlerta(null)
+  form.reset()
+  router.push("/dashboard");
+}
+
+const handleLocationConfirm = (lat: number, lng: number) => {
+  setLocation({ lat, lng })
+  form.setValue("location.latitude", lat)
+  form.setValue("location.longitude", lng)
 }
 
   return (
@@ -223,7 +253,7 @@ export default function RegisterForm() {
               
               <FormField
                 control={form.control}
-                name="pais"
+                name="address.pais"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>País</FormLabel>
@@ -236,7 +266,7 @@ export default function RegisterForm() {
               />
               <FormField
                 control={form.control}
-                name="provincia"
+                name="address.provincia"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Provincia</FormLabel>
@@ -244,7 +274,7 @@ export default function RegisterForm() {
                       onValueChange={(value) => {
                         field.onChange(value)
                         setLocalidades(localidadesPorProvincia[value as keyof typeof localidadesPorProvincia] || [])
-                        form.setValue("localidad", "")
+                        form.setValue("address.localidad", "")
                       }}
                       defaultValue={field.value}
                     >
@@ -267,7 +297,7 @@ export default function RegisterForm() {
               />
               <FormField
                 control={form.control}
-                name="localidad"
+                name="address.localidad"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Localidad</FormLabel>
@@ -292,7 +322,7 @@ export default function RegisterForm() {
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <FormField
                     control={form.control}
-                    name="calle"
+                    name="address.calle"
                     render={({ field }) => (
                     <FormItem>
                         <FormLabel>Calle</FormLabel>
@@ -305,7 +335,7 @@ export default function RegisterForm() {
                 />
                 <FormField
                     control={form.control}
-                    name="numero"
+                    name="address.numero"
                     render={({ field }) => (
                     <FormItem>
                         <FormLabel>Número</FormLabel>
@@ -324,6 +354,55 @@ export default function RegisterForm() {
                     )}
                 />
               </div>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <FormField
+                    control={form.control}
+                    name="location.latitude"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Latitud</FormLabel>
+                        <FormControl>
+                        <Input {...field} 
+                          readOnly
+                          placeholder="latitud: -34.61315"
+                          inputMode="numeric"
+                          onKeyPress={(event) => {
+                            if (!/[0-9]/.test(event.key)) {
+                              event.preventDefault();
+                            }
+                          }}
+                        />
+                        </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="location.longitude"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Longitud</FormLabel>
+                        <FormControl>
+                        <Input {...field}
+                          placeholder="longitud: -58.37723" 
+                          inputMode="numeric"
+                          readOnly
+                          onKeyPress={(event) => {
+                            if (!/[0-9]/.test(event.key)) {
+                              event.preventDefault();
+                            }
+                          }}
+                        />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <MapLocationPicker onLocationConfirm={handleLocationConfirm} />
+              </div>
+              <FormDescription>*Esta ubicación se mostrara con sus datos personales.</FormDescription>
+            
               {/* <div className="grid grid-cols-1">
               <FormField
                 control={form.control}
@@ -379,6 +458,15 @@ export default function RegisterForm() {
             </form>
           </Form>
         </CardContent>
+        {alerta && 
+            <CustomAlert
+              tipo={alerta.tipo}
+              titulo={alerta.titulo}
+              mensaje={alerta.mensaje}
+              onClose={close}
+            />
+         }
+        {isPending && <Loading fullScreen text="Procesando su registro..." />}
       </Card>
     </div>
   )

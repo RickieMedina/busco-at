@@ -1,6 +1,6 @@
 'use server';
 
-import { loginSchema, registerSchema } from '@/lib/zod';
+import { formRegisterSchema, loginSchema, registerSchema } from '@/lib/zod';
 import { signIn } from '@/auth';
 import { z } from 'zod';
 import { AuthError } from 'next-auth';
@@ -28,29 +28,12 @@ export const loginAction = async (value: z.infer<typeof loginSchema>) => {
 const MAX_FILE_SIZE = 5000000
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
 
-const formSchema = z.object({
-  nombre: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-  apellido: z.string().min(2, "El apellido debe tener al menos 2 caracteres"),
-  email: z.string().email("Email inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-  dni: z.string().regex(/^\d{8}$/, "El DNI debe tener 8 dígitos"),
-  fecha: z.string().refine((date) => new Date(date) <= new Date(), "La fecha no puede ser futura"),
-  genero: z.string().min(1, "Seleccione un género"),
-  telefono: z.string().regex(/^\d{10}$/, "El teléfono debe tener 10 dígitos"),
-  pais: z.literal("Argentina"),
-  provincia: z.string().min(1, "Seleccione una provincia"),
-  localidad: z.string().min(1, "Seleccione una localidad"),
-  calle: z.string().min(1, "Ingrese el nombre de la calle"),
-  numero: z.string().min(1, "Ingrese el número de la calle"),
-  //imagenPerfilUrl: z.string(),
-  rol: z.string().min(1, "Selecione un rol"),
-})
 
-export const registerAction = async (value: z.infer<typeof formSchema>) => {
+export const registerAction = async (value: z.infer<typeof formRegisterSchema>) => {
         
         try {
            
-            const {data, success} = formSchema.safeParse(value);
+            const {data, success} = formRegisterSchema.safeParse(value);
             console.log('data', data)
             if(!success) {
                 return {error: 'Invalid data'}
@@ -68,8 +51,8 @@ export const registerAction = async (value: z.infer<typeof formSchema>) => {
             //TODO:validate identification_type, gender and role, birth_date
             const passwordHash = await bcrypt.hash(data.password, 10);
             
-            //const address: string = `${data.calle} ${data.numero}, ${data.localidad}, ${data.provincia}, ${data.pais}`
-            const address: string = `${data.calle} ${data.numero}`
+            const address: string = `${data.address.calle},,${data.address.numero},, ${data.address.localidad},, ${data.address.provincia},, ${data.address.pais}`
+            //const address: string = `${data.calle} ${data.numero}`
 
             const rol : Role = Object.values(Role).find((r) => r === data.rol) as Role
             //Agregar imagenes.. 
@@ -85,8 +68,8 @@ export const registerAction = async (value: z.infer<typeof formSchema>) => {
                     gender: 1,// TODO: add get gender-validate
                     phone: data.telefono,
                     address: address,
-                    latitude:null,  //TODO: add impmentations
-                    longitude:null, //TODO: add impmentations
+                    latitude:data.location.latitude, 
+                    longitude:data.location.longitude,
                     image: null, //TODO: add impmentations
                     role: rol,
                     created_at: new Date(),

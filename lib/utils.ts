@@ -15,11 +15,13 @@ export const  mapIOfferToTypeOffer = (offers: IOffer[]): Offer[] => {
                   createdAt: offer.created_date,
                   title: offer.name,
                   description: offer.description,
-                  gender: offer.gender ,// debería pasarlo a string
+                  gender: offer.gender ,// TODO:debería pasarlo a string
                   address: {
                   pais: "Argentina",
-                  calle: offer.address.split(',,')[0], //TODO: revisar como guardare la dirección. 
-                  numero: offer.address.split(',,')[1]
+                  calle: offer.address.split(',,')[0],
+                  numero: offer.address.split(',,')[1],
+                  localidad: offer.address.split(',,')[2],
+                  provincia: offer.address.split(',,')[3]
                   },
                   location: {
                     latitude: offer.latitude,

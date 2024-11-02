@@ -48,11 +48,32 @@ export const formRegisterSchema = object({
     }, "Debes ser mayor de 18 años para registrarte"),
     genero: string().min(1, "Seleccione un género"),
     telefono: string().regex(/^\d{10}$/, "El teléfono debe tener 10 dígitos"),
-    pais: literal("Argentina"),
-    provincia: string().min(1, "Seleccione una provincia"),
-    localidad: string().min(1, "Seleccione una localidad"),
-    calle: string().min(1, "Ingrese el nombre de la calle"),
-    numero: string().min(1, "Ingrese el número de la calle"),
+    // pais: literal("Argentina"),
+    // provincia: string().min(1, "Seleccione una provincia"),
+    // localidad: string().min(1, "Seleccione una localidad"),
+    // calle: string().min(1, "Ingrese el nombre de la calle"),
+    // numero: string().min(1, "Ingrese el número de la calle"),
+    address: object({
+      pais: literal("Argentina"),
+      provincia: string().min(1, "Seleccione una provincia"),
+      localidad: string().min(1, "Seleccione una localidad"),
+      calle: string().min(1, "Ingrese el nombre de la calle"),
+      numero: string().min(1, "Ingrese el número de la calle"),
+    }),
+    location: object({
+      latitude: number().min(-90, "Latitud inválida").max(90, "Latitud inválida").refine(
+        (lat) => lat !== 0,
+        {
+          message: "Seleccione una ubicación en el mapa",
+        }
+      ),
+      longitude: number().min(-180, "Longitud inválida").max(180, "Longitud inválida").refine(
+        (lng) => lng !== 0,
+        {
+          message: "Seleccione una ubicación en el mapa",
+        }
+      )
+    }),
   //   imagenPerfil: z
   //     .any()
   //     .refine((files) => files?.length == 1, "La imagen es requerida")

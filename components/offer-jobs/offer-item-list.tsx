@@ -13,6 +13,7 @@ import ConfirmDialog from "../application/application-dialog";
 import { useSession } from "next-auth/react";
 import { Loading } from "../loading";
 import { CustomAlert } from "../custom-alert";
+import Map from "@/components/map";
 
 
 interface OfferItemListProps {
@@ -31,7 +32,7 @@ export default function OfferItemList(props: OfferItemListProps) {
 
   //TODO: impement get address  with full location
   const getLocation = (address: Offer['address']) => {
-      return `${address.calle} ${address.numero}`
+      return `${address.calle} ${address.numero}, ${address.localidad}, ${address.provincia}`
   }
 
   const onViewOffer = (id: number) => {
@@ -160,6 +161,13 @@ return (
                           <p className="text-xl">Argentina, Córdoba</p>
                           <p className="text-xl">{props.offer.address.calle} {props.offer.address.numero}</p>
                         </div>
+                      </div>
+                      <div className="flex items-start w-3/4">
+                          <Map
+                            latitud={props.offer.location.latitude}
+                            longitud={props.offer.location.longitude}
+                            mapHeight={200}
+                          />
                       </div>
                       <div className="flex items-center space-x-4">
                         <User className="w-6 h-6 text-indigo-500" />
