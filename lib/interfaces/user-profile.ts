@@ -1,5 +1,8 @@
+import { Professional } from "@/lib/interfaces/professional";
+import { Employer } from "@/lib/interfaces/employer";
+import { Users } from "@/lib/interfaces/user";
 
-export interface Users {
+export interface UserProfile {
     user_id:               string;
     name:                  string;
     last_name:             string;
@@ -20,4 +23,6 @@ export interface Users {
     created_at:            Date;
     updated_at?:           Date;
     is_active:             boolean;
+    professional?: Professional[];
+    employer?: Employer[];
 }

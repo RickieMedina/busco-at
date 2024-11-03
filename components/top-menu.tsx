@@ -36,7 +36,7 @@ export default function TopMenu() {
           </SheetTrigger>
             <SheetContent side="right" className="w-full sm:w-[540px]">
               <SheetHeader>
-                <SheetTitle className="text-left">Perfil: {session.data?.user.role}</SheetTitle>
+                <SheetTitle className="text-left">Perfil {session.data?.user.role}</SheetTitle>
               </SheetHeader>
                 {/* section rol admin */}
                 {session.data?.user.role === "admin" && (
@@ -62,7 +62,10 @@ export default function TopMenu() {
                 {/* section rol profesional*/}
                 {session.data?.user.role === "profesional" && (
                   <div className="mt-8 space-y-4">
-                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => setIsOpen(false)}>
+                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/dashboard'); setIsOpen(false);}}>
+                      Inicio
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/profesional/perfil'); setIsOpen(false);}}>
                       Perfil
                     </Button>
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => setIsOpen(false)}>
@@ -80,7 +83,7 @@ export default function TopMenu() {
                      <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/dashboard'); setIsOpen(false);}}>
                       Inicio
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => setIsOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/empleador/perfil'); setIsOpen(false);}}>
                       Perfil
                     </Button>
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/empleador/ofertas'); setIsOpen(false);}}>

@@ -10,20 +10,14 @@ import { CalendarDays, MapPin, Phone, Mail, Briefcase, User, X } from 'lucide-re
 import { Users } from '@/lib/interfaces/user'
 import { Professional } from '@/lib/interfaces/professional'
 import {getAddressFromDB } from '@/lib/utils'
+import { Employer } from '@/lib/interfaces/employer'
 //import { getHealthCareTypes } from '@/lib/constants/healt-care-type'
-
-interface Employer {
-  employer_id: number;
-  company_name: string;
-  phone: string;
-  email: string;
-}
 
 interface ProfileProps {
   user: Users;
   professional?: Professional;
   employer?: Employer;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 export default function Profile({ user, professional, employer, onClose }: ProfileProps) {
@@ -55,11 +49,17 @@ export default function Profile({ user, professional, employer, onClose }: Profi
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className={`grid w-full ${user.role === 'profesional' ? 'grid-cols-3' : 'grid-cols-2'}`}>
             <TabsTrigger value="personal">Información Personal</TabsTrigger>
             <TabsTrigger value="role">
               {user.role === 'profesional' ? 'Información Profesional' : 'Información de Empleador'}
             </TabsTrigger>
+            {user.role === 'profesional' &&(
+              <TabsTrigger value="adjuntos">
+                Adjuntos
+              </TabsTrigger>
+            )
+            }
           </TabsList>
           <TabsContent value="personal" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -149,14 +149,21 @@ export default function Profile({ user, professional, employer, onClose }: Profi
               <p>Información no disponible</p>
             )}
           </TabsContent>
+          <TabsContent value="adjuntos" className="space-y-4">
+            <h1>Adjuntos content</h1>
+
+          </TabsContent>
         </Tabs>
       </CardContent>
       <CardFooter className='flex justify-end'>
+        {onClose &&
         <Button onClick={onClose}
                 type="button"
                 size="lg">
-            Cerrar
+                Cerrar
         </Button>
+        }
+        
       </CardFooter>
     </Card>
   )
