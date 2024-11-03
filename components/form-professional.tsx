@@ -22,6 +22,7 @@ import { Switch } from './ui/switch'
 import { Textarea } from './ui/textarea'
 import { FileUpload } from './file-upload'
 import { formProfessionalSchema } from '@/lib/zod'
+import { Checkbox } from './ui/checkbox'
 
 type FormValues = z.infer<typeof formProfessionalSchema>
 
@@ -76,7 +77,19 @@ export default function FormularioProfessional() {
     const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
     
     const form = useForm<FormValues>({
-        resolver: zodResolver(formProfessionalSchema)
+        resolver: zodResolver(formProfessionalSchema),
+        defaultValues: {
+            identification_type: '',
+            identification_number: '',
+            health_care_type: [],
+            patient_type: [],
+            paymentType: {
+                socialSecurity: false,
+                private: false
+            },
+            hourly_rate: '',
+            observations: ''
+        }
     })
 
     
@@ -124,56 +137,66 @@ export default function FormularioProfessional() {
         </CardHeader>
         <CardContent>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                 <h2><strong>Especialización</strong></h2>   
-                 <FormField
-                    control={form.control}
-                    name="health_care_type"
-                    render={({ field }) => (
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                 <h2><strong>Especialización</strong></h2> 
+                 <div className='flex flex-col md:flex-row gap-4'>
+                 <div className="space-y-2 w-1/2">
+                 <FormLabel>Campos de atención</FormLabel>
+                    <FormField
+                        control={form.control}
+                        name="health_care_type"
+                        render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Campo de atención</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Seleccione un tipo" />
-                            </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                            {health_care_type.map((type) => (
-                                <SelectItem key={type.health_care_type_id} value={type.name}>
-                                {type.name}
-                                </SelectItem>
-                            ))}
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        </FormItem>
+                        {health_care_type.map((campo) => (
+                            <div key={campo.health_care_type_id} className="flex items-center space-x-4">
+                            <Checkbox
+                                checked={field.value?.includes(campo.name)}
+                                onCheckedChange={(checked) => {
+                                const updatedValue = checked
+                                    ? [...(field.value || []), campo.name]
+                                    : field.value?.filter((value) => value !== campo.name) || [];
+                                field.onChange(updatedValue);
+                                }}
+                            />
+                            <FormLabel className="ml-2">{campo.name}</FormLabel>
+                            </div>
+                        ))} 
+                        <FormMessage/>
+                       </FormItem>
+                       
                     )}
                     />
-                <FormField
-                    control={form.control}
-                    name="patient_type"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Tipo de paciente</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Seleccione un tipo" />
-                            </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                            {patient_type.map((type) => (
-                                <SelectItem key={type.patient_type_id} value={type.name}>
-                                {type.name}
-                                </SelectItem>
+                  </div>
+
+                  <div className="space-y-2">
+                    <FormLabel>Tipos de paciente</FormLabel>
+                        <FormField
+                        control={form.control}
+                        name="patient_type"
+                        render={({ field }) => (
+                            <FormItem>
+                            {patient_type.map((tipo) => (
+                                <div key={tipo.patient_type_id} className="flex items-center space-x-4">
+                                <Checkbox
+                                    checked={field.value?.includes(tipo.name)}
+                                    onCheckedChange={(checked) => {
+                                    const updatedValue = checked
+                                        ? [...(field.value || []), tipo.name]
+                                        : field.value?.filter((value) => value !== tipo.name) || [];
+                                    field.onChange(updatedValue);
+                                    }}
+                                />
+                                <FormLabel className="ml-2">{tipo.name}</FormLabel>
+                                </div>
                             ))}
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    </div>
+                 </div> 
+                 
+                    
                  <h2><strong>Detalles de contratación</strong></h2>
                  <div className='flex flex-col md:flex-row md:gap-6 md:w-auto'>
                  <FormField
@@ -196,7 +219,7 @@ export default function FormularioProfessional() {
                             ))}
                             </SelectContent>
                         </Select>
-                        <FormMessage />
+                         <FormMessage/>
                         </FormItem>
                     )}
                     />
@@ -216,7 +239,7 @@ export default function FormularioProfessional() {
                  </div>
                  <FormField
                     control={form.control}
-                    name="social_security"
+                    name="paymentType.socialSecurity"
                     render={({ field }) => (
                     <FormItem className="flex md:flex-row md:w-auto  items-center  gap-4">
                         <FormLabel>Trabaja con obra social</FormLabel>
@@ -232,7 +255,7 @@ export default function FormularioProfessional() {
                 />
                 <FormField
                     control={form.control}
-                    name="private"
+                    name="paymentType.private"
                     render={({ field }) => (
                     <FormItem  className="flex md:flex-row md:w-auto  items-center  gap-4">
                         <FormLabel>Trabaja con particular</FormLabel>

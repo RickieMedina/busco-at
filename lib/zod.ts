@@ -48,11 +48,6 @@ export const formRegisterSchema = object({
     }, "Debes ser mayor de 18 años para registrarte"),
     genero: string().min(1, "Seleccione un género"),
     telefono: string().regex(/^\d{10}$/, "El teléfono debe tener 10 dígitos"),
-    // pais: literal("Argentina"),
-    // provincia: string().min(1, "Seleccione una provincia"),
-    // localidad: string().min(1, "Seleccione una localidad"),
-    // calle: string().min(1, "Ingrese el nombre de la calle"),
-    // numero: string().min(1, "Ingrese el número de la calle"),
     address: object({
       pais: literal("Argentina"),
       provincia: string().min(1, "Seleccione una provincia"),
@@ -89,15 +84,16 @@ export const formRegisterSchema = object({
 export const formProfessionalSchema = object({
   identification_type: string().min(1, 'Seleccione tipo de identificación'),
   identification_number: string().regex(/^(20|23|24|27|30|33|34)([0-9]{9}|-[0-9]{8}-[0-9])$/, 'CUIL/CUIT inválido'),
-  health_care_type: string().min(1, 'El campo de atención es requerido'),
-  patient_type: string().min(1, 'El tipo de paciente es requerido'),
-  social_security: boolean().default(false),
-  private: boolean().default(false),
+  health_care_type: array(string()).nonempty('Debe seleccionar al menos un campo de atención'),
+  patient_type: array(string()).nonempty('Debe seleccionar al menos un tipo de paciente'),
+  paymentType: object({
+    socialSecurity: boolean().default(false),
+    private: boolean().default(false)
+  }),
   hourly_rate: string().min(1, 'El valor hora es requerido'),
   url: string().min(1, 'El archivo es requerido').optional(),
   observations: string().max(250, 'Las observaciones no pueden superar los 250 caracteres').optional()
 })
-
 
   //Offer
 export  const formOfferSchema = object({

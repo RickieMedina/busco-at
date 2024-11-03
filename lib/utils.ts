@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { IOffer } from "./interfaces/offer"
-import { Offer } from "@/types/offer"
+import { Address, Offer } from "@/types/offer"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -49,3 +49,19 @@ export const  mapIOfferToTypeOffer = (offers: IOffer[]): Offer[] => {
               };
           })
 }
+
+export const getAddressFromDB= (addressConcat: string) => {
+
+  const addressFromDB= addressConcat.split(',,');
+
+  const addressFormat: Address = {
+    pais: "Argentina",
+    calle: addressFromDB[0],
+    numero: addressFromDB[1],
+    localidad: addressFromDB[2],
+    provincia: addressFromDB[3]
+  }
+
+  return `${addressFormat.calle} ${addressFormat.numero}, ${addressFormat.localidad}, ${addressFormat.provincia}`
+}
+

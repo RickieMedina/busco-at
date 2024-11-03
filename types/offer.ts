@@ -1,3 +1,11 @@
+export type Address = {
+  pais?: string,
+  provincia?:string
+  localidad?: string
+  calle: string
+  numero: string
+}
+
 
 export type Offer = {
     id?: number;
@@ -5,13 +13,7 @@ export type Offer = {
     title: string;
     description: string,
     gender: number;// debería pasarlo a string
-    address: {
-      pais?: string,
-      provincia?:string
-      localidad?: string
-      calle: string
-      numero: string
-    },
+    address: Address,
     location: {
       latitude?: number
       longitude?: number

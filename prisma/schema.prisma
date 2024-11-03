@@ -61,7 +61,6 @@ model gender_type {
 model health_care_type {
   health_care_type_id                                          Int                      @id @default(autoincrement())
   name                                                         String?                  @db.VarChar(255)
-  professional_professional_health_care_typeTohealth_care_type professional[]           @relation("professional_health_care_typeTohealth_care_type")
   professional_care_type                                       professional_care_type[]
 }
 
@@ -110,7 +109,6 @@ model notification {
 model patient_type {
   patient_type_id                                      Int                    @id @default(autoincrement())
   name                                                 String?                @db.VarChar(255)
-  professional_professional_patient_typeTopatient_type professional[]         @relation("professional_patient_typeTopatient_type")
   professional_patient                                 professional_patient[]
 }
 
@@ -128,16 +126,12 @@ model professional {
   user_id                                                          String?                  @db.VarChar(255)
   social_security                                                  Boolean?
   private                                                          Boolean?
-  health_care_type                                                 Int?
-  patient_type                                                     Int?
   hourly_rate                                                      Float?
   identification_type                                              Int?
   identification_number                                            String?                 @db.VarChar(255)
   observations                                                     String?                  @db.VarChar(255)
   application                                                      application[]
   attachment                                                       attachment[]
-  health_care_type_professional_health_care_typeTohealth_care_type health_care_type?        @relation("professional_health_care_typeTohealth_care_type", fields: [health_care_type], references: [health_care_type_id], onDelete: NoAction, onUpdate: NoAction)
-  patient_type_professional_patient_typeTopatient_type             patient_type?            @relation("professional_patient_typeTopatient_type", fields: [patient_type], references: [patient_type_id], onDelete: NoAction, onUpdate: NoAction)
   users                                                            users?                   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   identification_type_professionalToidentification_type            identification_type?     @relation("professional_identification_typeToidentification_type", fields: [identification_type], references: [identification_id], onDelete: NoAction, onUpdate: NoAction)
   professional_care_type                                           professional_care_type[]

@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CalendarDays, MapPin, Phone, Mail, Briefcase, User, X } from 'lucide-react'
 import { Users } from '@/lib/interfaces/user'
 import { Professional } from '@/lib/interfaces/professional'
+import {getAddressFromDB } from '@/lib/utils'
+//import { getHealthCareTypes } from '@/lib/constants/healt-care-type'
 
 interface Employer {
   employer_id: number;
@@ -25,15 +27,10 @@ interface ProfileProps {
 }
 
 export default function Profile({ user, professional, employer, onClose }: ProfileProps) {
-  const [activeTab, setActiveTab] = useState<string>("personal")
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-AR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
+  const [activeTab, setActiveTab] = useState<string>("personal")
+  
+  //const health_care_types = getHealthCareTypes();
 
   const getGender = (genderCode: number) => {
     switch (genderCode) {
@@ -76,11 +73,15 @@ export default function Profile({ user, professional, employer, onClose }: Profi
               </div>
               <div className="space-y-2">
                 <Label className="font-bold">Dirección</Label>
-                <p className="flex items-center gap-2"><MapPin className="w-4 h-4" /> {user.address}</p>
+                <p className="flex items-center gap-2"><MapPin className="w-4 h-4" /> 
+                  {getAddressFromDB(user.address)}
+                </p>
               </div>
               <div className="space-y-2">
                 <Label className="font-bold">Fecha de Nacimiento</Label>
-                {/* <p className="flex items-center gap-2"><CalendarDays className="w-4 h-4" /> {user.birth_date.toDateString()}</p> */}
+                <p className="flex items-center gap-2"><CalendarDays className="w-4 h-4" />
+                    {new Date(user.birth_date).toLocaleDateString()}
+                </p>
               </div>
               <div className="space-y-2">
                 <Label className="font-bold">Género</Label>
@@ -96,20 +97,29 @@ export default function Profile({ user, professional, employer, onClose }: Profi
             {user.role === 'profesional' && professional ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="font-bold">Seguridad Social</Label>
+                  <Label className="font-bold">Trabaja con obra social</Label>
                   <p>{professional.social_security ? 'Sí' : 'No'}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold">Privado</Label>
+                  <Label className="font-bold">Trabaja particular</Label>
                   <p>{professional.private ? 'Sí' : 'No'}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold">Tipo de Cuidado de Salud</Label>
-                  <p>{professional.health_care_type}</p>
+                  <Label className="font-bold">Areas de atención</Label>
+                  <p>
+                      {professional.professional_care_type
+                          .map((care) => care.health_care_type.name) // Accede al name de health_care_type
+                          .join(', ')}
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold">Tipo de Paciente</Label>
-                  <p>{professional.patient_type}</p>
+                  <p>
+                      {professional.professional_patient
+                            .map((patient) => patient.patient_type.name)
+                            .join(', ')
+                      }
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold">Tarifa por Hora</Label>

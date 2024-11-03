@@ -19,7 +19,18 @@ export async function GET(request: Request, {params} : {params: {offerId: string
                 professional: {
                     include: {
                         users: true,
+                        professional_care_type: {
+                            include: {
+                                health_care_type: true, 
+                            },
+                        },
+                        professional_patient: {
+                            include: {
+                                patient_type: true, 
+                            },
+                        },
                     },
+                   
                 },
             },
         });
