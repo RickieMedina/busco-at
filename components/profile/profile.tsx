@@ -6,18 +6,24 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CalendarDays, MapPin, Phone, Mail, Briefcase, User, X } from 'lucide-react'
+import { CalendarDays, MapPin, Phone, Mail, Briefcase, User} from 'lucide-react'
 import { Users } from '@/lib/interfaces/user'
 import { Professional } from '@/lib/interfaces/professional'
 import {getAddressFromDB } from '@/lib/utils'
 import { Employer } from '@/lib/interfaces/employer'
-//import { getHealthCareTypes } from '@/lib/constants/healt-care-type'
+import AttachmentList from '../attachment/list-attachment'
 
 interface ProfileProps {
   user: Users;
   professional?: Professional;
   employer?: Employer;
   onClose?: () => void;
+}
+
+interface AttachmentType{
+  attachment_type: number;
+  name: string;
+  description: string;
 }
 
 export default function Profile({ user, professional, employer, onClose }: ProfileProps) {
@@ -61,7 +67,7 @@ export default function Profile({ user, professional, employer, onClose }: Profi
             )
             }
           </TabsList>
-          <TabsContent value="personal" className="space-y-4">
+          <TabsContent value="personal" className="space-y-4 pt-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="font-bold">Email</Label>
@@ -93,7 +99,7 @@ export default function Profile({ user, professional, employer, onClose }: Profi
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="role" className="space-y-4">
+          <TabsContent value="role" className="space-y-4 pt-2">
             {user.role === 'profesional' && professional ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -149,9 +155,13 @@ export default function Profile({ user, professional, employer, onClose }: Profi
               <p>Información no disponible</p>
             )}
           </TabsContent>
-          <TabsContent value="adjuntos" className="space-y-4">
-            <h1>Adjuntos content</h1>
+          <TabsContent value="adjuntos" className="space-y-4 pt-2">
+            {
+              <div className="grid grid-cols-1 md:grid-cols-2">
+                <AttachmentList attachments={professional?.attachment || []} />
+              </div>
 
+            }
           </TabsContent>
         </Tabs>
       </CardContent>

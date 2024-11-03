@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 interface FileUploadProps {
   onFileUploaded: (fileUrl: string) => void
+  uploading?: boolean
   allowedTypes: string[] // MIME Types 
   maxSizeInBytes: number
   label: string

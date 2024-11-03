@@ -8,6 +8,7 @@ export interface Professional {
     private:               boolean;
     professional_care_type: ProfessionalCareType[];
     professional_patient:   ProfessionalPatient[];
+    attachment?:            Attachment[];
     hourly_rate:           number;
     identification_type:   number;
     identification_number: string;
@@ -33,4 +34,21 @@ export interface ProfessionalPatient {
         patient_type_id: number,
         name: string,
       }
+}
+
+export interface Attachment {
+    attachment_id: number;
+    professional_id: number;
+    attachment_type: number;
+    observation: null;
+    created_at: Date;
+    end_date: null;
+    file_location: string;
+    attachment_type_attachment_attachment_typeToattachment_type: AttachmentTypeAttachmentAttachmentTypeToattachmentType;
+}
+
+export interface AttachmentTypeAttachmentAttachmentTypeToattachmentType {
+    attachment_type: number;
+    name: string;
+    description: string;
 }
