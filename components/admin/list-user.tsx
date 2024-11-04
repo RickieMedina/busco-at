@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useTransition } from 'react'
 import {
   Table,
   TableBody,
@@ -33,8 +33,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { MoreHorizontal, Calendar as CalendarIcon } from 'lucide-react'
+import { MoreHorizontal, Calendar as CalendarIcon, Trash2 } from 'lucide-react'
 import { format } from "date-fns"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog'
+import { useRouter } from 'next/navigation'
+import { Loading } from '../loading'
+import { CustomAlert } from '../custom-alert'
 
 interface User {
   user_id: string
@@ -52,16 +56,19 @@ interface User {
 export default function ListUser({ initialUsers = [] }: { initialUsers: User[] }) {
   const [users, setUsers] = useState<User[]>(initialUsers)
   const [globalFilter, setGlobalFilter] = useState('')
-  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined })
+  //const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined })
   const [roleFilter, setRoleFilter] = useState<string>('');
   const [stateFilter, setStateFilter] = useState<string>('');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [idUserSelected, setIdUserSelected ] = useState<string>('')
+  const [isPending, startTransition] = useTransition();
+  const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
 
-
-  const handleDeactivateUser = useCallback((userId: string) => {
-    setUsers(prev => prev.map(user => 
-      user.user_id === userId ? { ...user, is_active: false } : user
-    ))
-  }, [])
+//   const handleDeactivateUser = useCallback((userId: string) => {
+//     setUsers(prev => prev.map(user => 
+//       user.user_id === userId ? { ...user, is_active: false } : user
+//     ))
+//   }, [])
 
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'dd/MM/yyyy')
@@ -88,9 +95,60 @@ export default function ListUser({ initialUsers = [] }: { initialUsers: User[] }
     });
   }, [users, stateFilter, roleFilter, globalFilter]);
 
-  const handleStateFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setStateFilter(event.target.value);
-  };
+//   const handleStateFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+//     setStateFilter(event.target.value);
+//   };
+
+const handleDelete = async (e:any) => {
+    
+    e.preventDefault();
+    if (!idUserSelected) {
+        return;
+    }
+    startTransition(async () => {
+        try {
+            const response = await fetch(`/api/user/${idUserSelected}`, {
+                method: 'PATCH',
+                body: JSON.stringify({status: false}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if(!response.ok){
+                setAlerta({
+                    tipo: 'error',
+                    titulo: '¡Ocurrió un error!',
+                    mensaje: 'No se pudo realizar la solicitud'
+                  })
+            }
+            else {
+                const result = await response.json();
+                setAlerta({
+                    tipo: 'exito',
+                    titulo: '¡La solicitud se realizo con éxito!',
+                    mensaje: 'Puedes continuar gestionando'
+                })
+            }
+            
+        } catch (error) {
+            setAlerta({
+                tipo: 'error',
+                titulo: '¡Ocurrió un error!',
+                mensaje: 'No se pudo realizar la solicitud'
+              })
+            console.error('Error deleting user');
+        }
+    });
+}
+
+ const onClose= () => {
+    setIsDeleteDialogOpen(false)
+ }
+
+ const closeAlert = () => {
+    setAlerta(null)
+ }
 
   /* const filteredUsers = useMemo(() => {
     return users.filter(user => {
@@ -201,29 +259,43 @@ export default function ListUser({ initialUsers = [] }: { initialUsers: User[] }
                 <TableCell>{formatDate(user.updated_at)}</TableCell>
                 <TableCell>{user.is_active ? 'Sí' : 'No'}</TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Abrir menú</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleDeactivateUser(user.user_id)}
-                        disabled={!user.is_active}
-                      >
-                        Dar de baja
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    <Button variant="outline" 
+                            disabled={!user.is_active}
+                            size="icon" onClick={() => {
+                        setIdUserSelected(user.user_id)
+                        setIsDeleteDialogOpen(true)
+                    }}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro que desea desactivar este usuario?</AlertDialogTitle>
+            <AlertDialogDescription>
+               Esto cancelará todas las postulaciones u ofertas asociadas a este usuario
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={(e)=> {handleDelete(e); onClose()}}>Eliminar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {alerta && (
+            <CustomAlert
+              tipo={alerta.tipo}
+              titulo={alerta.titulo}
+              mensaje={alerta.mensaje}
+              onClose={closeAlert}
+            />
+          )}
+      {isPending && <Loading fullScreen text="Procesando solicitud..." />}
       </div>
     </div>
   )
