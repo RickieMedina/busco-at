@@ -1,3 +1,4 @@
+import { UserTable } from "@/components/admin/list-paginated";
 import ListUser from "@/components/admin/list-user";
 
 interface User {
@@ -20,6 +21,7 @@ export default async function UsersPage() {
     const users: User[] = await response.json();
 
     return (
+       
         <div className="flex flex-col items-center justify-center gap-4">
             <h1 className="text-4xl font-bold">Administración de usuarios</h1>
             <ListUser
