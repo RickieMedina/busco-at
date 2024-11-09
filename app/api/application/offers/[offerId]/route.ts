@@ -29,6 +29,14 @@ export async function GET(request: Request, {params} : {params: {offerId: string
                                 patient_type: true, 
                             },
                         },
+                        attachment: {
+                            // where: {
+                            //     end_date: null,
+                            //   },
+                            include: {
+                              attachment_type_attachment_attachment_typeToattachment_type: true,
+                            },
+                        },
                     },
                    
                 },

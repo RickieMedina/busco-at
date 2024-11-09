@@ -30,6 +30,11 @@ export default {
                 throw new Error("Incorrect password");
               }
 
+              //Logica de validación.
+              /*
+                is active?
+              */
+
             return user;
   
           },
