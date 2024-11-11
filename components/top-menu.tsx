@@ -68,8 +68,8 @@ export default function TopMenu() {
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/profesional/perfil'); setIsOpen(false);}}>
                       Perfil
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => setIsOpen(false)}>
-                      Configuración
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/profesional/postulaciones'); setIsOpen(false);}}>
+                      Postulaciones
                     </Button>
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut({redirectTo:'/dashboard'})}>
                       Cerrar sesión

@@ -4,7 +4,7 @@ export interface IOffer {
     name: string,
     description: string,
     created_date: Date,
-    end_date: null,
+    end_date?: Date,
     employer_id: number,
     gender: number,
     age_from: number,

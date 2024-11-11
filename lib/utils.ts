@@ -50,6 +50,49 @@ export const  mapIOfferToTypeOffer = (offers: IOffer[]): Offer[] => {
           })
 }
 
+export const  mapUniqueIOfferToTypeOffer = (offer: IOffer): Offer => {
+
+   return {
+                  id: offer.job_offer_id,
+                  createdAt: offer.created_date,
+                  endDate: offer.end_date,
+                  title: offer.name,
+                  description: offer.description,
+                  gender: offer.gender ,// TODO:debería pasarlo a string
+                  address: {
+                  pais: "Argentina",
+                  calle: offer.address.split(',,')[0],
+                  numero: offer.address.split(',,')[1],
+                  localidad: offer.address.split(',,')[2],
+                  provincia: offer.address.split(',,')[3]
+                  },
+                  location: {
+                    latitude: offer.latitude,
+                    longitude: offer.longitude
+                    },
+                  ageRange: {
+                  min: offer.age_from,
+                  max: offer.age_to
+                  },
+                  requiresCertificate: offer.require_certificate,
+                  paymentType: {
+                  socialSecurity: offer.social_security,
+                  private: offer.private,
+                  },
+                  diagnosis: offer.diagnosis,
+                  additionalObservations: offer.observations,
+                  schedule: offer.days_hours.split(',').map((day_hour) => {
+                      const [day, startTime, endTime] = day_hour.split('-');
+                      return {
+                          day: day,
+                          startTime: startTime,
+                          endTime: endTime
+                      };
+                  })
+              };
+}
+
+
 export const getAddressFromDB= (addressConcat: string) => {
 
   const addressFromDB= addressConcat.split(',,');

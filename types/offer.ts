@@ -10,6 +10,7 @@ export type Address = {
 export type Offer = {
     id?: number;
     createdAt?: Date,
+    endDate?: Date,
     title: string;
     description: string,
     gender: number;// debería pasarlo a string
