@@ -6,9 +6,16 @@ import { Application } from "@/lib/interfaces/application"
 import ProfileViewerWrapper from "../profile/profile-view-wrapper"
 import ConfirmApplication from "./application-confirm"
 import RejectedApplication from "./application-rejected"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { Offer } from "@/types/offer"
 import JobOfferSelector from "../offer-jobs/offer-selector"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Input } from "../ui/input"
+import { Button } from "../ui/button"
+import { DialogDescription } from "@radix-ui/react-dialog"
+import { v4 as uuidv4 } from 'uuid';
+import { Check, DollarSign } from "lucide-react"
+import { start } from "repl"
 
 
 interface ApplicationListProps {
@@ -19,6 +26,10 @@ interface ApplicationListProps {
 export default function ApplicationList({  offers }: ApplicationListProps) {
   const [applications, setApplications] = useState<Application[]>([])
   const [offer_id, setOfferId] = useState<number>(0)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [amount, setAmount] = useState(0)
+  const [applicationId, setApplicationId] = useState(0)
+  const [isPending, startTransition] = useTransition();
 
   const fetchApplications = async () => {
     const response = await fetch(`/api/application/offers/${offer_id}`)
@@ -39,6 +50,35 @@ export default function ApplicationList({  offers }: ApplicationListProps) {
     setOfferId(offerId)
    // fetchApplications()
   }
+
+  const handleDonate = async () => {
+    startTransition(async () => {
+    const paymentId = uuidv4();
+    
+    const response = await fetch(`/api/payment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(
+        { postId: paymentId,
+          applicationId: applicationId, 
+          amount: amount 
+        })
+    });
+
+    if (!response.ok) {
+      const data = await response.json()
+      console.log(data.error)
+      return
+    }
+    const data = await response.json()
+    window.open(data.preference_init_point, '_blank')
+    setIsModalOpen(false)
+
+  })
+  }
+
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -84,21 +124,95 @@ export default function ApplicationList({  offers }: ApplicationListProps) {
                 <TableCell>{new Date(app.application_date).toLocaleDateString()}</TableCell>
                 <TableCell className="capitalize">{app.application_status}</TableCell>
                 <TableCell>
-                  <div className="flex space-x-2">
-                    <ConfirmApplication
-                        onConfirm={handleUpdate}
-                        id= {app.application_id}
-                    />
-                    <RejectedApplication
-                        onConfirm={handleUpdate}
-                        id= {app.application_id}
-                    />
-                  </div>
+                  { app.application_status === 'pendiente' ? (
+                      <div className="flex space-x-2">
+                      <ConfirmApplication
+                          onConfirm={handleUpdate}
+                          id= {app.application_id}
+                          job_offer_id={app.job_offer_id}
+                      />
+                      <RejectedApplication
+                          onConfirm={handleUpdate}
+                          id= {app.application_id}
+                          job_offer_id={app.job_offer_id}
+                      />
+                      </div>
+                    ):
+                    <div className="flex space-x-2">
+                        Finalizada
+                    </div>
+                  }
+                      
+                    
+                  
+                  {/* <div className="flex space-x-2">
+                    <button onClick={() => {setIsModalOpen(true);setApplicationId(app.application_id)}}>
+                      Donación
+                    </button>
+                  </div> */}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        
+        {/* <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Conexión exitosa</DialogTitle>
+            <DialogDescription>Si encontraste al AT que buscabas</DialogDescription>
+          </DialogHeader>
+          <Input
+            value={amount}
+            onChange={(e) => setAmount(Number(e.target.value))}
+            placeholder="Importe a ingresar"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>Cancelar</Button>
+            <Button onClick={() => handleDonate()}>Agregar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog> */}
+      {/* <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-2xl">
+            <Check className="h-6 w-6 text-green-500" />
+            Conexión exitosa
+          </DialogTitle>
+          <DialogDescription>
+            Colabora con nuestra misión de conectar profesionales con oportunidades laborales
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="relative">
+            <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+            <Input
+              value={amount}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^0-9.]/g, '');
+                if (value === '' || (/^\d*\.?\d*$/.test(value) && !isNaN(Number(value)))) {
+                  setAmount(Number(value));
+                }
+              }}
+              placeholder="Importe a ingresar"
+              className="pl-9"
+              type="text"
+              min="0"
+              step="0.01"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsModalOpen(false)} disabled={isPending}>
+            Cancelar
+          </Button>
+          <Button onClick={handleDonate} disabled={isPending}>
+             Aceptar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+      </Dialog> */}
       </CardContent>
     </Card>
   )

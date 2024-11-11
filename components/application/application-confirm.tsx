@@ -10,9 +10,10 @@ import { Loading } from "../loading";
 interface ConfirmDialogProps {
     onConfirm: () => void;
     id: number;
+    job_offer_id: number;
   }
   
-export default function ConfirmApplication({ id, onConfirm } : ConfirmDialogProps){
+export default function ConfirmApplication({ id, job_offer_id, onConfirm } : ConfirmDialogProps){
 
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [isPending, startTransition] = useTransition();
@@ -29,7 +30,10 @@ const handleConfirm = async () => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({application_status: status})
+            body: JSON.stringify(
+                {application_status: status,
+                 job_offer_id: job_offer_id
+                })
         });
 
         if (!response.ok) {

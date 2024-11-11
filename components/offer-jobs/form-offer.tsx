@@ -85,6 +85,7 @@ export default function JobOfferForm() {
           titulo: '¡Tu oferta de empleo se registro con éxito!',
           mensaje: 'Puedes visualizar desde tu perfil en la sección de ofertas'
         })
+        window.location.href = "/empleador/ofertas"
       }
     })
   }

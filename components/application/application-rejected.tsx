@@ -10,10 +10,11 @@ import { Loading } from "../loading";
 interface RejectedDialogProps {
     onConfirm: () => void;
     id: number;
+    job_offer_id: number;
   }
 
   //TODO: refactor this component with the ConfirmApplication component
-export default function RejectedApplication({ id, onConfirm } : RejectedDialogProps){
+export default function RejectedApplication({ id, job_offer_id, onConfirm } : RejectedDialogProps){
 
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [isPending, startTransition] = useTransition();
@@ -31,7 +32,11 @@ const handleConfirm = async () => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({application_status: status})
+            body: JSON.stringify(
+                {
+                 application_status: status,
+                 job_offer_id: job_offer_id
+                })
         });
 
         if (!response.ok) {
@@ -66,7 +71,7 @@ const onCancel = () => {
 return (
     <div>
         <Button 
-           variant="destructive" 
+           variant="destructive"
            size="sm"
            onClick={() => setIsConfirmVisible(true)}
          >

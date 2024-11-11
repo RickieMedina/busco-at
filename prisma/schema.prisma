@@ -13,6 +13,7 @@ model application {
   job_offer_id       Int?
   application_date   DateTime?     @db.Date
   application_status Status        @default(pendiente)
+  notified_date      DateTime?     @db.Date
   job_offer          job_offer?    @relation(fields: [job_offer_id], references: [job_offer_id], onDelete: NoAction, onUpdate: NoAction)
   professional       professional? @relation(fields: [professional_id], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
   payment            payment[]
