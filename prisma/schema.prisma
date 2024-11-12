@@ -162,6 +162,7 @@ model rating {
   professional_id Int?
   rating_type_id  Int?
   rating_score    Int?
+  application_id  Int? //TODO: campo a revisar.
   employer        employer?     @relation(fields: [employer_id], references: [employer_id], onDelete: NoAction, onUpdate: NoAction)
   professional    professional? @relation(fields: [professional_id], references: [professional_id], onDelete: NoAction, onUpdate: NoAction)
   rating_type     rating_type?  @relation(fields: [rating_type_id], references: [rating_type_id], onDelete: NoAction, onUpdate: NoAction)

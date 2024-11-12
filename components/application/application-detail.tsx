@@ -16,6 +16,7 @@ import { DialogDescription } from "@radix-ui/react-dialog"
 import { v4 as uuidv4 } from 'uuid';
 import { Check, DollarSign } from "lucide-react"
 import { start } from "repl"
+import RatingComponent from "../offer-jobs/offer-score"
 
 
 interface ApplicationListProps {
@@ -41,7 +42,6 @@ export default function ApplicationList({  offers }: ApplicationListProps) {
     fetchApplications()
   }, [offer_id])
 
-
   const handleUpdate = () => {
     fetchApplications()
   }
@@ -49,6 +49,10 @@ export default function ApplicationList({  offers }: ApplicationListProps) {
   const handleSelectedOffer = (offerId: number) => {
     setOfferId(offerId)
    // fetchApplications()
+  }
+  const handleScored = () => {
+    console.log('scored')
+    fetchApplications()
   }
 
   const handleDonate = async () => {
@@ -124,7 +128,7 @@ export default function ApplicationList({  offers }: ApplicationListProps) {
                 <TableCell>{new Date(app.application_date).toLocaleDateString()}</TableCell>
                 <TableCell className="capitalize">{app.application_status}</TableCell>
                 <TableCell>
-                  { app.application_status === 'pendiente' ? (
+                  { app.application_status === 'pendiente' && (
                       <div className="flex space-x-2">
                       <ConfirmApplication
                           onConfirm={handleUpdate}
@@ -137,12 +141,19 @@ export default function ApplicationList({  offers }: ApplicationListProps) {
                           job_offer_id={app.job_offer_id}
                       />
                       </div>
-                    ):
-                    <div className="flex space-x-2">
-                        Finalizada
-                    </div>
+                    )
                   }
-                      
+                  {
+                    app.application_status === 'aceptada' && (
+                      <div className="flex space-x-2">
+                            <RatingComponent
+                             application_id={app.application_id}
+                             profesional_id={app.professional_id}
+                             onsubmit={handleScored}
+                            />
+                      </div>
+                    )
+                  }   
                     
                   
                   {/* <div className="flex space-x-2">
