@@ -21,9 +21,13 @@ export async function GET(request: Request) {
         const params = new URLSearchParams(url.search);
 
         const search = params.get('search') 
+        const pageParam = params.get('page');
+        const limitParam = params.get('limit');
 
         const filters: SearchData = search? JSON.parse(search): {keyword: '', provincia: '', localidad: ''};
-        
+        const page = pageParam ? parseInt(pageParam, 10) : 1;
+        const limit = limitParam ? parseInt(limitParam, 10) : 10;
+        const startIndex = (page - 1) * limit;
 
         const offerJob = await db.job_offer.findMany({
             orderBy: { created_date: 'desc' }
@@ -42,8 +46,11 @@ export async function GET(request: Request) {
             return matchesKeyword && matchesProvincia && matchesLocalidad; 
         });
 
+        // Aplicar paginado a filteredOffers
+        const paginatedOffers = filteredOffers.slice(startIndex, startIndex + limit);
+        const totalOffers = filteredOffers.length;
 
-        return NextResponse.json(filteredOffers, { status: 200 });
+        return NextResponse.json({ offers: paginatedOffers, totalOffers }, { status: 200 });
         
     } catch (error) {
         console.log(error);
