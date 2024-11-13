@@ -2,11 +2,10 @@
 import OfferList from "@/components/offer-jobs/offer-list";
 import Pagination from "@/components/offer-jobs/offer-pagination";
 import OfferSearch from "@/components/offer-jobs/offer-search";
-import { Button } from "@/components/ui/button";
 import { IOffer } from "@/lib/interfaces/offer";
 import { mapIOfferToTypeOffer } from "@/lib/utils";
 import { Offer } from "@/types/offer";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 type SearchData = {
     keyword: string;
@@ -42,10 +41,8 @@ export default function DashboardPage() {
         fetchOffers();
     }, [search, currentPage]);
 
-
     return (
         <div>
-            
             <OfferSearch
                 onSearch={handleOfferSearch}
             />

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSession, signIn, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Menu } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -53,6 +53,9 @@ export default function TopMenu() {
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/admin/pacientes'); setIsOpen(false);}}>
                       Tipos Paciente
                     </Button>
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/admin/reportes'); setIsOpen(false);}}>
+                      Mis estadisticas
+                    </Button>
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut({redirectTo:'/dashboard'})}>
                       Cerrar sesión
                     </Button>
@@ -71,6 +74,10 @@ export default function TopMenu() {
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/profesional/postulaciones'); setIsOpen(false);}}>
                       Postulaciones
                     </Button>
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/about'); setIsOpen(false);}}>
+                      Acerca de nosotros
+                    </Button>
+
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut({redirectTo:'/dashboard'})}>
                       Cerrar sesión
                     </Button>
@@ -94,6 +101,11 @@ export default function TopMenu() {
                     </Button>
                   </div>
                 )}
+                <SheetFooter className="pt-10">
+                  <Button variant="ghost" className="w-full justify justify-start text-md" onClick={() => {router.push('/about'); setIsOpen(false);}}>
+                          Acerca de nosotros
+                </Button>
+              </SheetFooter>
             </SheetContent>
         </Sheet>
          )}
@@ -114,7 +126,12 @@ export default function TopMenu() {
                     Iniciar Sesión
                   </Button>
                 </div>
-              </SheetContent> 
+                <SheetFooter className="pt-10">
+                  <Button variant="ghost" className="w-full justify justify-start text-md" onClick={() => {router.push('/about'); setIsOpen(false);}}>
+                          Acerca de nosotros
+                </Button>
+              </SheetFooter>
+            </SheetContent> 
            </Sheet>
          )} 
          {session.data?.user && !session.data.user.profile_completed && (
@@ -142,6 +159,7 @@ export default function TopMenu() {
            </Sheet>
          )} 
       </nav>
+      
     </>
   )
 }
