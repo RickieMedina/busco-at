@@ -32,6 +32,7 @@ import { formRegisterSchema } from "@/lib/zod"
 import MapLocationPicker from "./map-location-picker"
 import { Loading } from "./loading"
 import { CustomAlert } from "./custom-alert"
+import { TermsCheckbox } from "./user/check-tyc"
 
 const rol =[
     "profesional",
@@ -50,6 +51,7 @@ export default function RegisterForm() {
     const [localidades, setLocalidades] = useState<string[]>([])
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
     const router = useRouter();
+    const [termsAccepted, setTermsAccepted] = useState(false)
     
     const form = useForm<FormValues>({
     resolver: zodResolver(formRegisterSchema),
@@ -451,11 +453,12 @@ const handleLocationConfirm = (lat: number, lng: number) => {
               />
               <Button type="submit" 
                       className="w-full"
-                      disabled={isPending}>
+                      disabled={isPending || !termsAccepted}>
                 Registrarse
               </Button>
               {error && <FormMessage> {error}</FormMessage>}
             </form>
+            <TermsCheckbox onCheckedChange={setTermsAccepted} />
           </Form>
         </CardContent>
         {alerta && 
