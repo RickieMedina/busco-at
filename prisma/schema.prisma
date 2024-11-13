@@ -114,7 +114,7 @@ model patient_type {
 }
 
 model payment {
-  payment_id     Int          @id @default(autoincrement())
+  payment_id     BigInt          @id
   application_id Int?
   date           DateTime?    @db.Date
   amount         Decimal?     @db.Decimal(10, 2)

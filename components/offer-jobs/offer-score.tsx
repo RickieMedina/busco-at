@@ -104,12 +104,15 @@ export default function RatingComponent({application_id,profesional_id,onsubmit}
   return (
     <TooltipProvider>
       <div>
-        <Button variant="outline" 
-                size="sm" 
-                disabled={isRated}
-                onClick={() => setIsOpen(true)}>
+        <div className="flex-2">
+          <Button variant="outline" 
+            size="sm" 
+            className="w-full"
+            disabled={isRated}
+            onClick={() => setIsOpen(true)}>
             Valorar Profesional
-        </Button>
+          </Button>
+        </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent>
             <DialogHeader>
