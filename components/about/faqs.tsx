@@ -37,7 +37,29 @@ const faqs = [
   {
     question: "¿Cómo se verifica la autenticidad de las ofertas y los perfiles?",
     answer: "Nuestro equipo revisa manualmente todas las ofertas de trabajo y los perfiles de AT. Además, requerimos documentación que respalde las credenciales profesionales de los AT y verificamos la información de contacto de los empleadores."
-  }
+  },
+   {
+    question: "¿Cuáles son los terminos y condiciones de uso?",
+    answer: (
+        <>
+          Puedes leer los términos y condiciones de uso de BuscoAT en el siguiente enlace:{" "}
+          <a href="https://res.cloudinary.com/dr8wmb13g/image/upload/v1731474133/TyC_yjtzrc.pdf" target="_blank" rel="noopener noreferrer">
+            <b>Términos y Condiciones</b>
+          </a>
+        </>
+      ),
+   },
+   {
+    question: "¿Cuáles son las políticas de privacidad?",
+    answer: (
+        <>
+          Puedes leer las políticas de privacidad de BuscoAT en el siguiente enlace:{" "}
+          <a href="https://res.cloudinary.com/dr8wmb13g/image/upload/v1731473421/politica-de-privacidad_yomrmj.pdf" target="_blank" rel="noopener noreferrer">
+            <b>Políticas de Privacidad</b>
+          </a>
+        </>
+      ),
+   }
 ]
 
 export function FAQModal() {
@@ -48,7 +70,7 @@ export function FAQModal() {
       <DialogTrigger asChild>
         <Button variant="default"
                 size={'default'}
-        >Preguntas Frecuentes
+        >Preguntas Frecuentes - TyC
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
