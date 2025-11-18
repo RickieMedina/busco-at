@@ -5,27 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { MapPin, Search } from "lucide-react"
-
-type Provincia = {
-  id: string
-  nombre: string
-}
-
-type LocalidadesPorProvincia = {
-  [key: string]: string[]
-}
-
-const provincias: Provincia[] = [
-  { id: "buenosaires", nombre: "Buenos Aires" },
-  { id: "cordoba", nombre: "Córdoba" },
-  { id: "santafe", nombre: "Santa Fe" },
-]
-
-const localidadesPorProvincia: LocalidadesPorProvincia = {
-  buenosaires: ["La Plata", "Mar del Plata", "Bahía Blanca"],
-  cordoba: ["Córdoba", "Villa María", "Río Cuarto"],
-  santafe: ["Rosario", "Santa Fe", "Rafaela"],
-}
+import { provincias } from "@/lib/constants/provincias";
+import { localidadesPorProvincia } from "@/lib/constants/localidades-por-provincia";
 
 interface JobSearchFormProps {
   onSearch: (searchData: { keyword: string; provincia: string; localidad: string }) => void
@@ -42,7 +23,7 @@ export default function JobSearchForm({ onSearch }: JobSearchFormProps) {
   }, [])
 
   useEffect(() => {
-    setLocalidades(localidadesPorProvincia[selectedProvincia])
+    setLocalidades(localidadesPorProvincia[selectedProvincia as keyof typeof localidadesPorProvincia])
     setSelectedLocalidad("") 
   }, [selectedProvincia])
 

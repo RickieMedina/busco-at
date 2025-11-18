@@ -22,6 +22,7 @@ return (
             <TabsContent value="ofertas">
                 <OfferList
                     offers={offers}
+                    isApplication={false}
                 />
             </TabsContent>
             <TabsContent value="nueva-oferta">

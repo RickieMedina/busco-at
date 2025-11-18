@@ -14,7 +14,7 @@ export default function AboutPage() {
             <p className="text-muted-foreground">
               BuscoAT es la plataforma líder en conectar Acompañantes Terapéuticos con quienes necesitan sus servicios. 
               Nuestra misión es facilitar el acceso a oportunidades laborales para profesionales AT y 
-              simplificar el proceso de búsqueda para las familias y instituciones.
+              simplificar el proceso de búsqueda para las familias e instituciones.
             </p>
           </section>
 
