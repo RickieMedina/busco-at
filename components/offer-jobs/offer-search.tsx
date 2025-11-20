@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { MapPin, Search } from "lucide-react"
+import { MapPin, Search, X } from "lucide-react"
 import { provincias } from "@/lib/constants/provincias";
 import { localidadesPorProvincia } from "@/lib/constants/localidades-por-provincia";
 
@@ -32,6 +32,17 @@ export default function JobSearchForm({ onSearch }: JobSearchFormProps) {
       keyword,
       provincia: provincias.find(p => p.id === selectedProvincia)?.nombre || "",
       localidad: selectedLocalidad
+    })
+  }
+
+  const handleClear = () => {
+    setKeyword("")
+    setSelectedProvincia("cordoba")
+    setSelectedLocalidad("")
+    onSearch({
+      keyword: "",
+      provincia: provincias.find(p => p.id === "cordoba")?.nombre || "",
+      localidad: ""
     })
   }
 
@@ -84,8 +95,18 @@ export default function JobSearchForm({ onSearch }: JobSearchFormProps) {
           variant={"default"}
           size="lg"
           onClick={handleSearch}
+          title="Buscar ofertas"
         >
           Buscar 
+        </Button>
+        
+        <Button 
+          variant="ghost"
+          size="sm"
+          onClick={handleClear}
+          title="Limpiar filtros"
+        >
+          <X className="h-4 w-4" />
         </Button>
       </div>
     </div>
