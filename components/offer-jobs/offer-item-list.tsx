@@ -158,7 +158,7 @@ return (
                         <MapPin className="w-6 h-6 text-red-500 mt-1" />
                         <div>
                           <Label className="text-lg font-semibold">Ubicación</Label>
-                          <p className="text-xl">{props.offer.address.localidad} - {props.offer.address.localidad}</p>
+                          <p className="text-xl">{props.offer.address.provincia} - {props.offer.address.localidad}</p>
                           <p className="text-xl">{props.offer.address.calle} {props.offer.address.numero}</p>
                         </div>
                       </div>
