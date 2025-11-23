@@ -5,43 +5,93 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { MapPin, Search, X } from "lucide-react"
-import { provincias } from "@/lib/constants/provincias";
-import { localidadesPorProvincia } from "@/lib/constants/localidades-por-provincia";
+import { Province, Locality } from "@/lib/interfaces/location"
 
 interface JobSearchFormProps {
   onSearch: (searchData: { keyword: string; provincia: string; localidad: string }) => void
 }
 
 export default function JobSearchForm({ onSearch }: JobSearchFormProps) {
-  const [selectedProvincia, setSelectedProvincia] = useState<string>("cordoba")
-  const [localidades, setLocalidades] = useState<string[]>([])
+  const [provincias, setProvincias] = useState<Province[]>([])
+  const [selectedProvincia, setSelectedProvincia] = useState<string>("")
+  const [localidades, setLocalidades] = useState<Locality[]>([])
   const [selectedLocalidad, setSelectedLocalidad] = useState<string>("")
   const [keyword, setKeyword] = useState("")
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true)
+  const [isLoadingLocalities, setIsLoadingLocalities] = useState(false)
 
   useEffect(() => {
-    setLocalidades(localidadesPorProvincia["cordoba"])
+    const fetchProvinces = async () => {
+      try {
+        setIsLoadingProvinces(true)
+        const response = await fetch('/api/province')
+        const data = await response.json()
+        setProvincias(data)
+        
+        // Seleccionar Córdoba por defecto (ID 14)
+        const cordoba = data.find((p: Province) => p.name === 'Córdoba')
+        if (cordoba) {
+          setSelectedProvincia(cordoba.province_id.toString())
+        }
+      } catch (error) {
+        console.error('Error cargando provincias:', error)
+      } finally {
+        setIsLoadingProvinces(false)
+      }
+    }
+    
+    fetchProvinces()
   }, [])
 
   useEffect(() => {
-    setLocalidades(localidadesPorProvincia[selectedProvincia as keyof typeof localidadesPorProvincia])
-    setSelectedLocalidad("") 
+    if (!selectedProvincia) return
+    
+    const fetchLocalities = async () => {
+      try {
+        setIsLoadingLocalities(true)
+        setSelectedLocalidad("")
+        const response = await fetch(`/api/locality?province_id=${selectedProvincia}`)
+        const data = await response.json()
+        setLocalidades(data)
+      } catch (error) {
+        console.error('Error cargando localidades:', error)
+      } finally {
+        setIsLoadingLocalities(false)
+      }
+    }
+    
+    fetchLocalities()
   }, [selectedProvincia])
 
   const handleSearch = () => {
+    const selectedProvinciaName = provincias.find(
+      p => p.province_id.toString() === selectedProvincia
+    )?.name || ""
+    
+    const selectedLocalidadName = localidades.find(
+      l => l.locality_id.toString() === selectedLocalidad
+    )?.name || ""
+    
     onSearch({
       keyword,
-      provincia: provincias.find(p => p.id === selectedProvincia)?.nombre || "",
-      localidad: selectedLocalidad
+      provincia: selectedProvinciaName,
+      localidad: selectedLocalidadName
     })
   }
 
   const handleClear = () => {
     setKeyword("")
-    setSelectedProvincia("cordoba")
+    
+    // Resetear a Córdoba
+    const cordoba = provincias.find(p => p.name === 'Córdoba')
+    if (cordoba) {
+      setSelectedProvincia(cordoba.province_id.toString())
+    }
     setSelectedLocalidad("")
+    
     onSearch({
       keyword: "",
-      provincia: provincias.find(p => p.id === "cordoba")?.nombre || "",
+      provincia: "",
       localidad: ""
     })
   }
@@ -69,24 +119,34 @@ export default function JobSearchForm({ onSearch }: JobSearchFormProps) {
               </div>
             </SelectTrigger>
             <SelectContent>
-              {provincias.map((provincia) => (
-                <SelectItem key={provincia.id} value={provincia.id}>
-                  {provincia.nombre}
-                </SelectItem>
-              ))}
+              {isLoadingProvinces ? (
+                <SelectItem value="loading" disabled>Cargando...</SelectItem>
+              ) : (
+                provincias.map((provincia) => (
+                  <SelectItem key={provincia.province_id} value={provincia.province_id.toString()}>
+                    {provincia.name}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
 
-          <Select value={selectedLocalidad} onValueChange={setSelectedLocalidad}>
+          <Select value={selectedLocalidad} onValueChange={setSelectedLocalidad} disabled={!selectedProvincia || isLoadingLocalities}>
             <SelectTrigger className="w-[200px] bg-background">
               <SelectValue placeholder="Selecciona localidad" />
             </SelectTrigger>
             <SelectContent>
-              {localidades.map((localidad) => (
-                <SelectItem key={localidad} value={localidad}>
-                  {localidad}
-                </SelectItem>
-              ))}
+              {isLoadingLocalities ? (
+                <SelectItem value="loading" disabled>Cargando...</SelectItem>
+              ) : localidades.length === 0 ? (
+                <SelectItem value="empty" disabled>No hay localidades</SelectItem>
+              ) : (
+                localidades.map((localidad) => (
+                  <SelectItem key={localidad.locality_id} value={localidad.locality_id.toString()}>
+                    {localidad.name}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
         </div>

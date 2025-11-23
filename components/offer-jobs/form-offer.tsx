@@ -9,23 +9,25 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { useState, useTransition } from "react"
+import { useState, useEffect, useTransition } from "react"
 import  {ScheduleSelector}  from "@/components/schedule-selector"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSession } from 'next-auth/react'
 import { Loading } from "../loading"
 import { CustomAlert } from "../custom-alert"
 import { gender } from "@/lib/constants/gender"
-import { provincias } from "@/lib/constants/provincias"
-import { localidadesPorProvincia } from "@/lib/constants/localidades-por-provincia"
 import { formOfferSchema } from "@/lib/zod"
 import MapLocationPicker from "../map-location-picker"
+import { Province, Locality } from "@/lib/interfaces/location"
 
 
 export default function JobOfferForm() {
   const [schedule, setSchedule] = useState<{ day: string; startTime: string; endTime: string }[]>([])
-  const [localidades, setLocalidades] = useState<string[]>([])
+  const [provincias, setProvincias] = useState<Province[]>([])
+  const [localidades, setLocalidades] = useState<Locality[]>([])
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [isLoadingProvinces, setIsLoadingProvinces] = useState(true)
+  const [isLoadingLocalities, setIsLoadingLocalities] = useState(false)
   const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -56,6 +58,23 @@ export default function JobOfferForm() {
       schedule: [],
     },
   })
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        setIsLoadingProvinces(true)
+        const response = await fetch('/api/province')
+        const data = await response.json()
+        setProvincias(data)
+      } catch (error) {
+        console.error('Error cargando provincias:', error)
+      } finally {
+        setIsLoadingProvinces(false)
+      }
+    }
+    
+    fetchProvinces()
+  }, [])
 
   const handleLocationConfirm = (lat: number, lng: number) => {
     setLocation({ lat, lng })
@@ -203,12 +222,27 @@ export default function JobOfferForm() {
                           <FormItem>
                             <FormLabel>Provincia</FormLabel>
                             <Select
-                              onValueChange={(value) => {
-                                field.onChange(value)
-                                setLocalidades(localidadesPorProvincia[value as keyof typeof localidadesPorProvincia] || [])
-                                form.setValue("address.localidad", "")
+                              onValueChange={async (value) => {
+                                
+                                const selectedProvince = provincias.find(p => p.province_id.toString() === value)
+                                if (selectedProvince) {
+                                  field.onChange(selectedProvince.name)
+                                  
+                                  try {
+                                    setIsLoadingLocalities(true)
+                                    const response = await fetch(`/api/locality?province_id=${value}`)
+                                    const data = await response.json()
+                                    setLocalidades(data)
+                                  } catch (error) {
+                                    console.error('Error cargando localidades:', error)
+                                  } finally {
+                                    setIsLoadingLocalities(false)
+                                  }
+                                  
+                                  form.setValue("address.localidad", "")
+                                }
                               }}
-                              defaultValue={field.value}
+                              value={provincias.find(p => p.name === field.value)?.province_id.toString()}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -216,11 +250,15 @@ export default function JobOfferForm() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {provincias.map((provincia) => (
-                                  <SelectItem key={provincia.id} value={provincia.id}>
-                                    {provincia.nombre}
-                                  </SelectItem>
-                                ))}
+                                {isLoadingProvinces ? (
+                                  <SelectItem value="loading" disabled>Cargando...</SelectItem>
+                                ) : (
+                                  provincias.map((provincia) => (
+                                    <SelectItem key={provincia.province_id} value={provincia.province_id.toString()}>
+                                      {provincia.name}
+                                    </SelectItem>
+                                  ))
+                                )}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -233,18 +271,33 @@ export default function JobOfferForm() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Localidad</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select 
+                              onValueChange={(value) => {
+                                const selectedLocality = localidades.find(l => l.locality_id.toString() === value)
+                                if (selectedLocality) {
+                                  field.onChange(selectedLocality.name)
+                                }
+                              }}
+                              value={localidades.find(l => l.name === field.value)?.locality_id.toString()}
+                              disabled={isLoadingLocalities || localidades.length === 0}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Seleccione su localidad" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {localidades.map((localidad) => (
-                                  <SelectItem key={localidad} value={localidad}>
-                                    {localidad}
-                                  </SelectItem>
-                                ))}
+                                {isLoadingLocalities ? (
+                                  <SelectItem value="loading" disabled>Cargando...</SelectItem>
+                                ) : localidades.length === 0 ? (
+                                  <SelectItem value="empty" disabled>Seleccione primero una provincia</SelectItem>
+                                ) : (
+                                  localidades.map((localidad) => (
+                                    <SelectItem key={localidad.locality_id} value={localidad.locality_id.toString()}>
+                                      {localidad.name}
+                                    </SelectItem>
+                                  ))
+                                )}
                               </SelectContent>
                             </Select>
                             <FormMessage />
