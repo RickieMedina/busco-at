@@ -212,6 +212,19 @@ model users {
   identification_type_users_identification_typeToidentification_type identification_type? @relation("users_identification_typeToidentification_type", fields: [identification_type], references: [identification_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
+model province {
+  province_id Int        @id @default(autoincrement())
+  name        String     @db.VarChar(255)
+  locality    locality[]
+}
+
+model locality {
+  locality_id Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  province_id Int?
+  province    province? @relation(fields: [province_id], references: [province_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
 enum Role {
   admin
   profesional

@@ -67,7 +67,7 @@ export async function PATCH(request: Request, {params}: {params: {id: string}}) 
                             where: { application_id: application.application_id },
                             data: {notified_date: new Date()}
                         });
-                        await sendNotificationEmail(email, NotificationType.REJECTED);                        
+                        await sendNotificationEmail(email, NotificationType.CANCELED);                        
                     }
                 }
             });
