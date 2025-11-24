@@ -92,6 +92,7 @@ export const formProfessionalSchema = object({
   }),
   hourly_rate: string().min(1, 'El valor hora es requerido'),
   url: string().min(1, 'El archivo es requerido').optional(),
+  certificadoUrl: string().optional(),
   observations: string().max(250, 'Las observaciones no pueden superar los 250 caracteres').optional()
 })
 

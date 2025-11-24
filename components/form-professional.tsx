@@ -73,6 +73,7 @@ export default function FormularioProfessional() {
     const session = useSession();
     const [error, setError] = useState<string | null>(null);
     const [fileUrl, setFileUrl] = useState<string | null>(null);
+    const [certificadoUrl, setCertificadoUrl] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const [alerta, setAlerta] = useState<{ tipo: 'exito' | 'error', titulo: string, mensaje: string } | null>(null)
     
@@ -97,12 +98,19 @@ export default function FormularioProfessional() {
         console.log('values',values)
         startTransition(async () => {
             setError(null)
+            
+            // Include certificate URL in the submission
+            const submissionData = {
+                ...values,
+                certificadoUrl: certificadoUrl || undefined
+            };
+            
             const response = await fetch(`/api/professional/${session.data?.user.user_id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(values)
+                body: JSON.stringify(submissionData)
             })
             
             if (!response.ok) {
@@ -306,12 +314,20 @@ export default function FormularioProfessional() {
                     )}
                 /> 
                 <h2><strong>Adjuntos</strong></h2>
-                <FileUpload 
-                    label="Curriculum vitae"
-                    allowedTypes={["image/jpeg", "image/png", "application/pdf"]}
-                    onFileUploaded={onfileUploaded}
-                    maxSizeInBytes={5000000}
-                 />
+                <div className="space-y-3">
+                    <FileUpload 
+                        label="Curriculum vitae"
+                        allowedTypes={["image/jpeg", "image/png", "application/pdf"]}
+                        onFileUploaded={onfileUploaded}
+                        maxSizeInBytes={5000000}
+                    />
+                    <FileUpload 
+                        label="Certificados profesionales (opcional)"
+                        allowedTypes={["image/jpeg", "image/png", "application/pdf"]}
+                        onFileUploaded={setCertificadoUrl}
+                        maxSizeInBytes={5000000}
+                    />
+                </div>
                 <Button type="submit" 
                         className="w-full"
                         disabled={isPending}

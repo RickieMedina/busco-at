@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Paperclip, CheckCircle2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 interface FileUploadProps {
@@ -65,23 +65,31 @@ export function FileUpload({ onFileUploaded, allowedTypes, maxSizeInBytes, label
   }
 
   return (
-    <div className="space-y-4 w-auto">
-      <Label htmlFor="file-upload">{label} <span className="text-sm text-gray-500">(Opcional)</span></Label>
+    <div className="space-y-1 w-auto max-w-md">
+      <div className="flex items-center gap-2 mb-1">
+        <Paperclip className="h-3.5 w-3.5 text-gray-500" />
+        <Label htmlFor="file-upload" className="text-xs font-medium">{label}</Label>
+        {fileUrl && (
+          <div className="flex items-center gap-1 text-green-600">
+            <CheckCircle2 className="h-3 w-3" />
+            <span className="text-xs">✓</span>
+          </div>
+        )}
+      </div>
       <Input
         id="file-upload"
         type="file"
-        className="p-2 border rounded-md"
+        className="text-xs p-1.5 h-8 file:text-xs w-full"
         accept={allowedTypes.join(",")}
         onChange={handleUpload}
         disabled={uploading}
       />
-      <p className="text-sm text-gray-500">Tamaño máximo: {maxSizeInBytes / 1000000} MB, extensiones permitidas: {allowedTypes.map(mime => mime.split('/')[1]).join(',')}</p>
-      {uploading && <p>Subiendo archivo...</p>}
+      {uploading && <p className="text-xs text-gray-500">Subiendo...</p>}
       {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+        <Alert variant="destructive" className="py-1 px-2">
+          <AlertCircle className="h-3 w-3" />
+          <AlertTitle className="text-xs">Error</AlertTitle>
+          <AlertDescription className="text-xs">{error}</AlertDescription>
         </Alert>
       )}
     </div>

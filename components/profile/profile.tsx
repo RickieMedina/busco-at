@@ -15,6 +15,7 @@ import { Professional } from '@/lib/interfaces/professional'
 import {getAddressFromDB } from '@/lib/utils'
 import { Employer } from '@/lib/interfaces/employer'
 import AttachmentList from '../attachment/list-attachment'
+import EditableAttachmentList from '../attachment/editable-attachment-list'
 import { CustomAlert } from '../custom-alert'
 import { Loading } from '../loading'
 import { ImageUpload } from '../image-upload'
@@ -349,12 +350,16 @@ export default function Profile({ user, professional, employer, onClose }: Profi
             )}
           </TabsContent>
           <TabsContent value="adjuntos" className="space-y-4 pt-2">
-            {
+            {professional && (
               <div className="grid grid-cols-1 md:grid-cols-2">
-                <AttachmentList attachments={professional?.attachment || []} />
+              <EditableAttachmentList 
+                attachments={professional.attachment || []} 
+                professionalId={professional.professional_id}
+                isEditing={isEditing}
+                onAttachmentUpdated={() => window.location.reload()}
+              />
               </div>
-
-            }
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>

@@ -125,14 +125,34 @@ export async function POST(request: Request,  { params }: { params: { userId: st
                 });
             });
 
-            const attachment = await transaction.attachment.create({
-              data: {
-                professional_id: professional.professional_id, 
-                attachment_type: 1, //type 1 is c.v
-                created_at: new Date(),
-                file_location: data?.url
-              },
-            });
+            // Create attachments based on what URLs are provided
+            const attachments = [];
+            
+            // Type 1: Curriculum vitae (required)
+            if (data?.url) {
+              const cvAttachment = await transaction.attachment.create({
+                data: {
+                  professional_id: professional.professional_id, 
+                  attachment_type: 1,
+                  created_at: new Date(),
+                  file_location: data.url
+                },
+              });
+              attachments.push(cvAttachment);
+            }
+            
+            // Type 2: Certificados (optional)
+            if (data?.certificadoUrl) {
+              const certAttachment = await transaction.attachment.create({
+                data: {
+                  professional_id: professional.professional_id, 
+                  attachment_type: 2,
+                  created_at: new Date(),
+                  file_location: data.certificadoUrl
+                },
+              });
+              attachments.push(certAttachment);
+            }
 
             const updated = await transaction.users.update({
                 where: { user_id: userId },
@@ -142,7 +162,7 @@ export async function POST(request: Request,  { params }: { params: { userId: st
                 },
               });
           
-            return [professional, attachment, updated];
+            return [professional, attachments, updated];
           });
 
         if(!profileAdded[0] || !profileAdded[1] || !profileAdded[2]){
