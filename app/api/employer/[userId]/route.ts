@@ -30,6 +30,33 @@ const formSchema = z.object({
     email: z.string().email('Correo electrónico inválido').optional()
   })
 
+export async function PUT(request: Request, { params }: { params: { userId: string } }) {
+    try {
+        const { userId } = params;
+        const body = await request.json();
+        
+        const { company_name, phone, email } = body;
+
+        const employer = await db.employer.updateMany({
+            where: { user_id: userId },
+            data: {
+                company_name,
+                phone,
+                email
+            }
+        });
+
+        if (employer.count === 0) {
+            return NextResponse.json({ error: 'Empleador no encontrado' }, { status: 404 });
+        }
+
+        return NextResponse.json({ message: 'Perfil actualizado exitosamente' }, { status: 200 });
+    } catch (error) {
+        console.error('Error actualizando empleador:', error);
+        return NextResponse.json({ error: 'Error interno' }, { status: 500 });
+    }
+}
+
 export async function POST(request: Request,  { params }: { params: { userId: string } }) {
 
     try {

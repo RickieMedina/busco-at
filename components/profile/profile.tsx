@@ -6,12 +6,17 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CalendarDays, MapPin, Phone, Mail, Briefcase, User} from 'lucide-react'
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
+import { CalendarDays, MapPin, Phone, Mail, Briefcase, User, Edit, Save, X } from 'lucide-react'
 import { Users } from '@/lib/interfaces/user'
 import { Professional } from '@/lib/interfaces/professional'
 import {getAddressFromDB } from '@/lib/utils'
 import { Employer } from '@/lib/interfaces/employer'
 import AttachmentList from '../attachment/list-attachment'
+import { CustomAlert } from '../custom-alert'
+import { Loading } from '../loading'
 
 interface ProfileProps {
   user: Users;
@@ -29,8 +34,19 @@ interface AttachmentType{
 export default function Profile({ user, professional, employer, onClose }: ProfileProps) {
 
   const [activeTab, setActiveTab] = useState<string>("personal")
+  const [isEditing, setIsEditing] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [alert, setAlert] = useState<{ type: 'exito' | 'error', title: string, message: string } | null>(null)
   
-  //const health_care_types = getHealthCareTypes();
+  // Estados para campos editables
+  const [phone, setPhone] = useState(user.phone || '')
+  const [companyName, setCompanyName] = useState(employer?.company_name || '')
+  const [companyPhone, setCompanyPhone] = useState(employer?.phone || '')
+  const [companyEmail, setCompanyEmail] = useState(employer?.email || '')
+  const [socialSecurity, setSocialSecurity] = useState(professional?.social_security || false)
+  const [privateWork, setPrivateWork] = useState(professional?.private || false)
+  const [hourlyRate, setHourlyRate] = useState(professional?.hourly_rate?.toString() || '')
+  const [observations, setObservations] = useState(professional?.observations || '')
 
   const getGender = (genderCode: number) => {
     switch (genderCode) {
@@ -40,20 +56,116 @@ export default function Profile({ user, professional, employer, onClose }: Profi
     }
   }
 
+  const handleSave = async () => {
+    setLoading(true)
+    setAlert(null)
+    
+    try {
+      const userResponse = await fetch(`/api/user/${user.user_id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, address: user.address })
+      })
+
+      if (!userResponse.ok) throw new Error('Error actualizando datos personales')
+
+      if (user.role === 'profesional' && professional) {
+        const profResponse = await fetch(`/api/professional/${user.user_id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            social_security: socialSecurity,
+            private: privateWork,
+            hourly_rate: hourlyRate,
+            observations
+          })
+        })
+        if (!profResponse.ok) throw new Error('Error actualizando datos profesionales')
+      } else if (user.role === 'empleador' && employer) {
+        const empResponse = await fetch(`/api/employer/${user.user_id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            company_name: companyName,
+            phone: companyPhone,
+            email: companyEmail
+          })
+        })
+        if (!empResponse.ok) throw new Error('Error actualizando datos de empleador')
+      }
+
+      setAlert({ type: 'exito', title: 'Éxito', message: 'Perfil actualizado correctamente' })
+      setIsEditing(false)
+      
+      // Recargar página para ver cambios
+      setTimeout(() => window.location.reload(), 1500)
+    } catch (error) {
+      console.error(error)
+      setAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el perfil' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancel = () => {
+    // Restaurar valores originales
+    setPhone(user.phone || '')
+    setCompanyName(employer?.company_name || '')
+    setCompanyPhone(employer?.phone || '')
+    setCompanyEmail(employer?.email || '')
+    setSocialSecurity(professional?.social_security || false)
+    setPrivateWork(professional?.private || false)
+    setHourlyRate(professional?.hourly_rate?.toString() || '')
+    setObservations(professional?.observations || '')
+    setIsEditing(false)
+    setAlert(null)
+  }
+
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="flex flex-col sm:flex-row items-center gap-4">
-        <Avatar className="w-24 h-24">
-          <AvatarImage src={user.image || '/placeholder.svg?height=96&width=96'} alt={`${user.name} ${user.last_name}`} />
-          <AvatarFallback>{user.name[0]}{user.last_name[0]}</AvatarFallback>
-        </Avatar>
-        <div className="text-center sm:text-left">
-          <CardTitle className="text-2xl">{user.name} {user.last_name}</CardTitle>
-          <p className="text-muted-foreground">{user.role === 'profesional' ? 'Profesional' : 'Empleador'}</p>
+      <CardHeader className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Avatar className="w-24 h-24">
+            <AvatarImage src={user.image || '/placeholder.svg?height=96&width=96'} alt={`${user.name} ${user.last_name}`} />
+            <AvatarFallback>{user.name[0]}{user.last_name[0]}</AvatarFallback>
+          </Avatar>
+          <div className="text-center sm:text-left">
+            <CardTitle className="text-2xl">{user.name} {user.last_name}</CardTitle>
+            <p className="text-muted-foreground">{user.role === 'profesional' ? 'Profesional' : 'Empleador'}</p>
+          </div>
         </div>
-       
+        {!onClose && (
+          <div className="flex gap-2">
+            {!isEditing ? (
+              <Button onClick={() => setIsEditing(true)} variant="outline">
+                <Edit className="w-4 h-4 mr-2" />
+                Editar
+              </Button>
+            ) : (
+              <>
+                <Button onClick={handleCancel} variant="outline" disabled={loading}>
+                  <X className="w-4 h-4 mr-2" />
+                  Cancelar
+                </Button>
+                <Button onClick={handleSave} disabled={loading}>
+                  <Save className="w-4 h-4 mr-2" />
+                  Guardar
+                </Button>
+              </>
+            )}
+          </div>
+        )}
       </CardHeader>
       <CardContent>
+        {loading && <Loading />}
+        {alert && (
+          <CustomAlert
+            tipo={alert.type}
+            titulo={alert.title}
+            mensaje={alert.message}
+            onClose={() => setAlert(null)}
+          />
+        )}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className={`grid w-full ${user.role === 'profesional' ? 'grid-cols-3' : 'grid-cols-2'}`}>
             <TabsTrigger value="personal">Información Personal</TabsTrigger>
@@ -71,11 +183,21 @@ export default function Profile({ user, professional, employer, onClose }: Profi
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="font-bold">Email</Label>
-                <p className="flex items-center gap-2"><Mail className="w-4 h-4" /> {user.email}</p>
+                <p className="flex items-center gap-2 text-muted-foreground">
+                  <Mail className="w-4 h-4" /> {user.email}
+                </p>
               </div>
               <div className="space-y-2">
                 <Label className="font-bold">Teléfono</Label>
-                <p className="flex items-center gap-2"><Phone className="w-4 h-4" /> {user.phone}</p>
+                {isEditing ? (
+                  <Input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Teléfono"
+                  />
+                ) : (
+                  <p className="flex items-center gap-2"><Phone className="w-4 h-4" /> {user.phone}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label className="font-bold">Dirección</Label>
@@ -104,51 +226,111 @@ export default function Profile({ user, professional, employer, onClose }: Profi
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="font-bold">Trabaja con obra social</Label>
-                  <p>{professional.social_security ? 'Sí' : 'No'}</p>
+                  {isEditing ? (
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={socialSecurity}
+                        onCheckedChange={setSocialSecurity}
+                      />
+                      <span>{socialSecurity ? 'Sí' : 'No'}</span>
+                    </div>
+                  ) : (
+                    <p>{professional.social_security ? 'Sí' : 'No'}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold">Trabaja particular</Label>
-                  <p>{professional.private ? 'Sí' : 'No'}</p>
+                  {isEditing ? (
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={privateWork}
+                        onCheckedChange={setPrivateWork}
+                      />
+                      <span>{privateWork ? 'Sí' : 'No'}</span>
+                    </div>
+                  ) : (
+                    <p>{professional.private ? 'Sí' : 'No'}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold">Areas de atención</Label>
-                  <p>
+                  <p className="text-sm text-muted-foreground">
                       {professional.professional_care_type
-                          .map((care) => care.health_care_type.name) // Accede al name de health_care_type
-                          .join(', ')}
+                          .map((care) => care.health_care_type.name)} 
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold">Tipo de Paciente</Label>
-                  <p>
+                  <p className="text-sm text-muted-foreground">
                       {professional.professional_patient
-                            .map((patient) => patient.patient_type.name)
-                            .join(', ')
-                      }
+                            .map((patient) => patient.patient_type.name)} 
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold">Tarifa por Hora</Label>
-                  <p>${professional.hourly_rate}</p>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={hourlyRate}
+                      onChange={(e) => setHourlyRate(e.target.value)}
+                      placeholder="0.00"
+                    />
+                  ) : (
+                    <p>${professional.hourly_rate}</p>
+                  )}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label className="font-bold">Observaciones</Label>
-                  <p>{professional.observations || 'Sin observaciones'}</p>
+                  {isEditing ? (
+                    <Textarea
+                      value={observations}
+                      onChange={(e) => setObservations(e.target.value)}
+                      placeholder="Observaciones"
+                      rows={3}
+                    />
+                  ) : (
+                    <p>{professional.observations || 'Sin observaciones'}</p>
+                  )}
                 </div>
               </div>
             ) : user.role === 'empleador' && employer ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="font-bold">Nombre de la Empresa</Label>
-                  <p className="flex items-center gap-2"><Briefcase className="w-4 h-4" /> {employer.company_name}</p>
+                  {isEditing ? (
+                    <Input
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="Nombre de la empresa"
+                    />
+                  ) : (
+                    <p className="flex items-center gap-2"><Briefcase className="w-4 h-4" /> {employer.company_name}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold">Teléfono de la Empresa</Label>
-                  <p className="flex items-center gap-2"><Phone className="w-4 h-4" /> {employer.phone}</p>
+                  {isEditing ? (
+                    <Input
+                      value={companyPhone}
+                      onChange={(e) => setCompanyPhone(e.target.value)}
+                      placeholder="Teléfono"
+                    />
+                  ) : (
+                    <p className="flex items-center gap-2"><Phone className="w-4 h-4" /> {employer.phone}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold">Email de la Empresa</Label>
-                  <p className="flex items-center gap-2"><Mail className="w-4 h-4" /> {employer.email}</p>
+                  {isEditing ? (
+                    <Input
+                      type="email"
+                      value={companyEmail}
+                      onChange={(e) => setCompanyEmail(e.target.value)}
+                      placeholder="email@empresa.com"
+                    />
+                  ) : (
+                    <p className="flex items-center gap-2"><Mail className="w-4 h-4" /> {employer.email}</p>
+                  )}
                 </div>
               </div>
             ) : (

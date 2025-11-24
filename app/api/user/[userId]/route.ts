@@ -56,6 +56,31 @@ export async function GET(request: Request, {params} : {params: {userId: string}
     }
 }
 
+export async function PUT(request: Request, { params }: { params: { userId: string } }) {
+    try {
+        const { userId } = params;
+        const body = await request.json();
+        
+        const { phone, address } = body;
+
+        const userData = await db.users.update({
+            where: { user_id: userId },
+            data: {
+                phone,
+                address,
+                updated_at: new Date()
+            }
+        });
+
+        revalidatePath('/profesional/perfil');
+        revalidatePath('/empleador/perfil');
+
+        return NextResponse.json({ message: 'Datos actualizados exitosamente' }, { status: 200 });
+    } catch (error) {
+        console.error('Error actualizando usuario:', error);
+        return NextResponse.json({ error: 'Error interno' }, { status: 500 });
+    }
+}
 
 export async function PATCH(request: Request, {params} : {params: {userId: string}} ){
 

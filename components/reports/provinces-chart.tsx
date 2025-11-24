@@ -14,24 +14,24 @@ interface ProvincesChartProps {
 }
 
 export default function ProvincesChart({ data }: ProvincesChartProps) {
-  // Tomar solo las top 10 provincias
-  const top10Provinces = data.slice(0, 10)
+  // Tomar solo las top 3 provincias
+  const top3Provinces = data.slice(0, 3)
 
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Provincias con Mayor Cantidad de Ofertas</CardTitle>
-        <CardDescription>Top 10 provincias con más ofertas creadas</CardDescription>
+        <CardDescription>Top 3 provincias con más ofertas creadas</CardDescription>
       </CardHeader>
       <CardContent>
-        {top10Provinces.length === 0 ? (
+        {top3Provinces.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">
             No hay ofertas creadas en este período
           </p>
         ) : (
           <>
-            <div className="mb-6 grid grid-cols-2 md:grid-cols-3 gap-4">
-              {top10Provinces.slice(0, 3).map((province, index) => (
+            <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {top3Provinces.map((province, index) => (
                 <div key={province.province} className="p-4 rounded-lg border bg-card">
                   <p className="text-sm font-medium text-muted-foreground">
                     {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'} {province.province}
@@ -49,29 +49,29 @@ export default function ProvincesChart({ data }: ProvincesChartProps) {
                   color: "hsl(var(--chart-1))",
                 },
               }}
-              className="h-[400px]"
+              className="h-[250px] w-full"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart 
-                  data={top10Provinces} 
-                  margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
+                  data={top3Provinces} 
+                  margin={{ top: 20, right: 10, left: 10, bottom: 50 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="province" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={100}
+                    angle={0}
+                    height={60}
                     interval={0}
                     tick={{ fontSize: 12 }}
                   />
-                  <YAxis />
+                  <YAxis tick={{ fontSize: 12 }} />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar 
                     dataKey="offers_count" 
                     fill="hsl(var(--chart-1))" 
                     name="Ofertas"
                     radius={[8, 8, 0, 0]}
+                    maxBarSize={80}
                   />
                 </BarChart>
               </ResponsiveContainer>

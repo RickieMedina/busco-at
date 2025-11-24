@@ -25,7 +25,12 @@ export default function TopMenu() {
   return (
     <>
       <nav className="flex justify-between items-center p-4 bg-primary text-primary-foreground">
-        <div className="text-xl font-bold">BuscoAT</div>  
+        <div 
+          className="text-xl font-bold cursor-pointer hover:opacity-80 transition-opacity" 
+          onClick={() => router.push('/dashboard')}
+        >
+          BuscoAT
+        </div>  
         {session.data?.user && session.data.user.profile_completed && (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>

@@ -22,6 +22,34 @@ export async function GET(request: Request,   { params }: { params: { id: string
     }
 }
 
+export async function PUT(request: Request, { params }: { params: { userId: string } }) {
+    try {
+        const { userId } = params;
+        const body = await request.json();
+        
+        const { social_security, private: privateWork, hourly_rate, observations } = body;
+
+        const professional = await db.professional.updateMany({
+            where: { user_id: userId },
+            data: {
+                social_security,
+                private: privateWork,
+                hourly_rate: hourly_rate ? parseFloat(hourly_rate) : null,
+                observations
+            }
+        });
+
+        if (professional.count === 0) {
+            return NextResponse.json({ error: 'Profesional no encontrado' }, { status: 404 });
+        }
+
+        return NextResponse.json({ message: 'Perfil actualizado exitosamente' }, { status: 200 });
+    } catch (error) {
+        console.error('Error actualizando profesional:', error);
+        return NextResponse.json({ error: 'Error interno' }, { status: 500 });
+    }
+}
+
 export async function POST(request: Request,  { params }: { params: { userId: string } }) {
 
     try {
