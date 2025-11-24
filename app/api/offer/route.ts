@@ -6,6 +6,7 @@ type SearchData = {
     keyword: string;
     provincia: string;
     localidad: string;
+    status?: string;
 }
 
 
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
         const pageParam = params.get('page');
         const limitParam = params.get('limit');
 
-        const filters: SearchData = search? JSON.parse(search): {keyword: '', provincia: '', localidad: ''};
+        const filters: SearchData = search? JSON.parse(search): {keyword: '', provincia: '', localidad: '', status: 'all'};
         const page = pageParam ? parseInt(pageParam, 10) : 1;
         const limit = limitParam ? parseInt(limitParam, 10) : 10;
         const startIndex = (page - 1) * limit;
@@ -43,7 +44,9 @@ export async function GET(request: Request) {
                 removeDiacritics(provincia.toLowerCase()).includes(removeDiacritics(filters.provincia.toLowerCase())) : true;
             const matchesLocalidad = filters.localidad ? 
                 removeDiacritics(localidad.toLowerCase()).includes(removeDiacritics(filters.localidad.toLowerCase())) : true;
-            return matchesKeyword && matchesProvincia && matchesLocalidad; 
+            const matchesStatus = filters.status && filters.status !== 'all' ? offer.status === filters.status : true;
+            
+            return matchesKeyword && matchesProvincia && matchesLocalidad && matchesStatus; 
         });
 
         // Aplicar paginado a filteredOffers

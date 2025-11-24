@@ -11,6 +11,7 @@ type SearchData = {
     keyword: string;
     provincia: string;
     localidad: string;
+    status?: string;
 }
 
 export default function DashboardPage() {
@@ -21,7 +22,7 @@ export default function DashboardPage() {
 
 
     const [offers, setOffers] = useState<Offer[]>([]);
-    const [search, setSearch] = useState<SearchData>({keyword: '', provincia: '', localidad: ''});
+    const [search, setSearch] = useState<SearchData>({keyword: '', provincia: '', localidad: '', status: 'all'});
     
     const handleOfferSearch = (searchData: SearchData) => {
         console.log(searchData);

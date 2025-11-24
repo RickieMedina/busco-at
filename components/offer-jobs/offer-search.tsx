@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { MapPin, Search, X } from "lucide-react"
+import { MapPin, Search, X, Filter } from "lucide-react"
 import { Province, Locality } from "@/lib/interfaces/location"
+import { OfferStatus, offerStatusLabels } from "@/lib/constants/offer-status"
 
 interface JobSearchFormProps {
-  onSearch: (searchData: { keyword: string; provincia: string; localidad: string }) => void
+  onSearch: (searchData: { keyword: string; provincia: string; localidad: string; status: string }) => void
 }
 
 export default function JobSearchForm({ onSearch }: JobSearchFormProps) {
@@ -17,6 +18,7 @@ export default function JobSearchForm({ onSearch }: JobSearchFormProps) {
   const [localidades, setLocalidades] = useState<Locality[]>([])
   const [selectedLocalidad, setSelectedLocalidad] = useState<string>("")
   const [keyword, setKeyword] = useState("")
+  const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(true)
   const [isLoadingLocalities, setIsLoadingLocalities] = useState(false)
 
@@ -75,12 +77,14 @@ export default function JobSearchForm({ onSearch }: JobSearchFormProps) {
     onSearch({
       keyword,
       provincia: selectedProvinciaName,
-      localidad: selectedLocalidadName
+      localidad: selectedLocalidadName,
+      status: selectedStatus
     })
   }
 
   const handleClear = () => {
     setKeyword("")
+    setSelectedStatus("all")
     
     // Resetear a Córdoba
     const cordoba = provincias.find(p => p.name === 'Córdoba')
@@ -92,7 +96,8 @@ export default function JobSearchForm({ onSearch }: JobSearchFormProps) {
     onSearch({
       keyword: "",
       provincia: "",
-      localidad: ""
+      localidad: "",
+      status: "all"
     })
   }
 
@@ -109,6 +114,27 @@ export default function JobSearchForm({ onSearch }: JobSearchFormProps) {
             onChange={(e) => setKeyword(e.target.value)}
           />
         </div>
+
+        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+          <SelectTrigger className="w-[180px] bg-background">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 shrink-0 opacity-50" />
+              <SelectValue placeholder="Estado" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas</SelectItem>
+            <SelectItem value={OfferStatus.ACTIVE}>
+              {offerStatusLabels[OfferStatus.ACTIVE]}
+            </SelectItem>
+            <SelectItem value={OfferStatus.COMPLETED}>
+              {offerStatusLabels[OfferStatus.COMPLETED]}
+            </SelectItem>
+            <SelectItem value={OfferStatus.CANCELLED}>
+              {offerStatusLabels[OfferStatus.CANCELLED]}
+            </SelectItem>
+          </SelectContent>
+        </Select>
         
         <div className="flex gap-4">
           <Select value={selectedProvincia} onValueChange={setSelectedProvincia}>
