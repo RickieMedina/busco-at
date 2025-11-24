@@ -1,3 +1,4 @@
+import { OfferStatus } from "@prisma/client";
 
 export interface IOffer {
     job_offer_id: number,
@@ -5,6 +6,7 @@ export interface IOffer {
     description: string,
     created_date: Date,
     end_date?: Date,
+    status: OfferStatus,
     employer_id: number,
     gender: number,
     age_from: number,

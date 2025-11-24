@@ -6,9 +6,11 @@ import { Card, CardContent, CardFooter } from "../ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger} from "../ui/dialog";
 import { Briefcase, BriefcaseIcon, Check, CheckCircleIcon, Clock, ClockIcon, CreditCard, CreditCardIcon, FileText, FileTextIcon, MapPin, MapPinIcon, User, UserIcon } from "lucide-react";
 import { Label } from "../ui/label";
+import { Badge } from "../ui/badge";
 import { calculateDaysAgo } from "@/utils/calculate-days-ago";
 import { gender } from "@/lib/constants/gender";
 import { Offer } from "@/types/offer";
+import { OfferStatus, offerStatusLabels, offerStatusColors } from "@/lib/constants/offer-status";
 import ConfirmDialog from "../application/application-dialog";
 import { useSession } from "next-auth/react";
 import { Loading } from "../loading";
@@ -98,14 +100,27 @@ export default function OfferItemList(props: OfferItemListProps) {
     setAlerta(null)
   }
 
+  // Determinar el estado de la oferta
+  const offerStatus = props.offer.status || OfferStatus.ACTIVE;
+  const isOfferActive = offerStatus === OfferStatus.ACTIVE;
+  const statusConfig = offerStatusColors[offerStatus];
+  const statusLabel = offerStatusLabels[offerStatus];
+
 return (
     <div>
         <div className="space-y-4 m-2">
         <Card>
             <CardContent>
-            <h3 className="text-lg font-semibold">{props.offer.title}</h3>
-            <p className="text-sm text-gray-500">{getLocation(props.offer.address)}</p>
-            <p className="text-sm text-gray-500">{calculateDaysAgo(props.offer.createdAt!)}</p>
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold">{props.offer.title}</h3>
+                <p className="text-sm text-gray-500">{getLocation(props.offer.address)}</p>
+                <p className="text-sm text-gray-500">{calculateDaysAgo(props.offer.createdAt!)}</p>
+              </div>
+              <Badge variant={statusConfig.variant} className={`${statusConfig.bg} ${statusConfig.text}`}>
+                {statusLabel}
+              </Badge>
+            </div>
             </CardContent>
             <CardFooter>
               <Dialog open={showOfertaDetails} 
@@ -235,8 +250,9 @@ return (
                         </Button>
                         <Button type="button"
                                 size="lg"
+                                disabled={!isOfferActive}
                                 onClick={onApplication}>
-                          Postularme
+                          {!isOfferActive ? `Oferta ${statusLabel.toLowerCase()}` : 'Postularme'}
                         </Button>
                       </>
                     )}

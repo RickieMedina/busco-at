@@ -13,6 +13,8 @@ export const  mapIOfferToTypeOffer = (offers: IOffer[]): Offer[] => {
               return {
                   id: offer.job_offer_id,
                   createdAt: offer.created_date,
+                  endDate: offer.end_date,
+                  status: offer.status as any,
                   title: offer.name,
                   description: offer.description,
                   gender: offer.gender ,// TODO:debería pasarlo a string
@@ -56,6 +58,7 @@ export const  mapUniqueIOfferToTypeOffer = (offer: IOffer): Offer => {
                   id: offer.job_offer_id,
                   createdAt: offer.created_date,
                   endDate: offer.end_date,
+                  status: offer.status as any,
                   title: offer.name,
                   description: offer.description,
                   gender: offer.gender ,// TODO:debería pasarlo a string

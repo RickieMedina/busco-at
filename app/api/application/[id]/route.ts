@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { NotificationType, sendNotificationEmail } from "@/lib/resend";
-import { Status } from "@prisma/client";
+import { Status, OfferStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
@@ -36,7 +36,10 @@ export async function PATCH(request: Request, {params}: {params: {id: string}}) 
                 }),
 
                 db.job_offer.update({ where: {job_offer_id: job_offer_id},
-                    data: { end_date: new Date() }//Colocamos fecha fin.
+                    data: { 
+                        end_date: new Date(),
+                        status: OfferStatus.COMPLETED
+                    }
                 })
             ]);
         }

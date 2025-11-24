@@ -18,7 +18,7 @@ export async function POST(request: Request, {params} : {params: {userId: string
         const professional = await db.professional.findFirst({
             where: { user_id: userId },
         });
-        //TODO: validar que no este registrado ya en la misma.. 
+        
         if (!professional) {
             return NextResponse.json({ error: 'Identificación de profesional inválida' }, { status: 400 });
         }

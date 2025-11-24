@@ -80,6 +80,7 @@ model job_offer {
   created_date        DateTime?     @db.Date
   update_date         DateTime?     @db.Date
   end_date            DateTime?     @db.Date
+  status              OfferStatus   @default(ACTIVE)
   employer_id         Int?
   gender              Int?
   age_from            Int?
@@ -235,5 +236,11 @@ enum Status {
   aceptada
   rechazada
   pendiente
-  cancelada //TODO: validar si este estado será de la oferta. 
+  cancelada
+}
+
+enum OfferStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
 }
