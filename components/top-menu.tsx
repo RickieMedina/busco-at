@@ -74,6 +74,9 @@ export default function TopMenu() {
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/profesional/postulaciones'); setIsOpen(false);}}>
                       Postulaciones
                     </Button>
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/estadisticas'); setIsOpen(false);}}>
+                      Estadísticas
+                    </Button>
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/about'); setIsOpen(false);}}>
                       Acerca de nosotros
                     </Button>
@@ -95,6 +98,9 @@ export default function TopMenu() {
                     </Button>
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/empleador/ofertas'); setIsOpen(false);}}>
                       Mis Ofertas
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => {router.push('/estadisticas'); setIsOpen(false);}}>
+                      Estadísticas
                     </Button>
                     <Button variant="ghost" className="w-full justify-start text-lg" onClick={() => signOut({redirectTo:'/dashboard'})}>
                       Cerrar sesión
