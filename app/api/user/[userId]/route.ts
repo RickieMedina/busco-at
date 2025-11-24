@@ -61,15 +61,20 @@ export async function PUT(request: Request, { params }: { params: { userId: stri
         const { userId } = params;
         const body = await request.json();
         
-        const { phone, address } = body;
+        const { phone, address, image } = body;
+
+        // Construir objeto de actualización solo con campos presentes
+        const updateData: any = {
+            updated_at: new Date()
+        };
+        
+        if (phone !== undefined) updateData.phone = phone;
+        if (address !== undefined) updateData.address = address;
+        if (image !== undefined) updateData.image = image;
 
         const userData = await db.users.update({
             where: { user_id: userId },
-            data: {
-                phone,
-                address,
-                updated_at: new Date()
-            }
+            data: updateData
         });
 
         revalidatePath('/profesional/perfil');

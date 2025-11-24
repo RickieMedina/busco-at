@@ -17,6 +17,7 @@ import { Employer } from '@/lib/interfaces/employer'
 import AttachmentList from '../attachment/list-attachment'
 import { CustomAlert } from '../custom-alert'
 import { Loading } from '../loading'
+import { ImageUpload } from '../image-upload'
 
 interface ProfileProps {
   user: Users;
@@ -40,6 +41,7 @@ export default function Profile({ user, professional, employer, onClose }: Profi
   
   // Estados para campos editables
   const [phone, setPhone] = useState(user.phone || '')
+  const [imageUrl, setImageUrl] = useState(user.image || '')
   const [companyName, setCompanyName] = useState(employer?.company_name || '')
   const [companyPhone, setCompanyPhone] = useState(employer?.phone || '')
   const [companyEmail, setCompanyEmail] = useState(employer?.email || '')
@@ -64,7 +66,7 @@ export default function Profile({ user, professional, employer, onClose }: Profi
       const userResponse = await fetch(`/api/user/${user.user_id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, address: user.address })
+        body: JSON.stringify({ phone, address: user.address, image: imageUrl })
       })
 
       if (!userResponse.ok) throw new Error('Error actualizando datos personales')
@@ -110,6 +112,7 @@ export default function Profile({ user, professional, employer, onClose }: Profi
   const handleCancel = () => {
     // Restaurar valores originales
     setPhone(user.phone || '')
+    setImageUrl(user.image || '')
     setCompanyName(employer?.company_name || '')
     setCompanyPhone(employer?.phone || '')
     setCompanyEmail(employer?.email || '')
@@ -125,10 +128,18 @@ export default function Profile({ user, professional, employer, onClose }: Profi
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Avatar className="w-24 h-24">
-            <AvatarImage src={user.image || '/placeholder.svg?height=96&width=96'} alt={`${user.name} ${user.last_name}`} />
-            <AvatarFallback>{user.name[0]}{user.last_name[0]}</AvatarFallback>
-          </Avatar>
+          {isEditing ? (
+            <ImageUpload
+              currentImage={imageUrl}
+              onImageUploaded={(url) => setImageUrl(url)}
+              fallback={`${user.name[0]}${user.last_name[0]}`}
+            />
+          ) : (
+            <Avatar className="w-24 h-24">
+              <AvatarImage src={user.image || undefined} alt={`${user.name} ${user.last_name}`} className="object-cover" />
+              <AvatarFallback>{user.name[0]}{user.last_name[0]}</AvatarFallback>
+            </Avatar>
+          )}
           <div className="text-center sm:text-left">
             <CardTitle className="text-2xl">{user.name} {user.last_name}</CardTitle>
             <p className="text-muted-foreground">{user.role === 'profesional' ? 'Profesional' : 'Empleador'}</p>
