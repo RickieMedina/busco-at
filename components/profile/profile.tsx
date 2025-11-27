@@ -19,6 +19,7 @@ import EditableAttachmentList from '../attachment/editable-attachment-list'
 import { CustomAlert } from '../custom-alert'
 import { Loading } from '../loading'
 import { ImageUpload } from '../image-upload'
+import ProfessionalRatings from './professional-ratings'
 
 interface ProfileProps {
   user: Users;
@@ -144,6 +145,11 @@ export default function Profile({ user, professional, employer, onClose }: Profi
           <div className="text-center sm:text-left">
             <CardTitle className="text-2xl">{user.name} {user.last_name}</CardTitle>
             <p className="text-muted-foreground">{user.role === 'profesional' ? 'Profesional' : 'Empleador'}</p>
+            {user.role === 'profesional' && (
+              <div className="mt-2">
+                <ProfessionalRatings userId={user.user_id} showDetailed={false} />
+              </div>
+            )}
           </div>
         </div>
         {!onClose && (
