@@ -7,6 +7,8 @@ import { useState } from "react";
 import { Offer } from "@/types/offer";
 import OfferItemApplication from "./application-offer";
 import ApplicationRemove from "./application-remove";
+import { offerStatusLabels } from "@/lib/constants/offer-status";
+import { Badge } from "../ui/badge";
 
 
 
@@ -34,7 +36,12 @@ export function ApplicationUser({ applications, userId}: ApplicationTableProps) 
       {accessorKey: 'job_offer.title',header: 'Oferta',},
       {accessorKey: 'job_offer.createdAt',header: 'Fecha de Oferta', cell: ({ row }) => { const createdAt = row.original.job_offer.createdAt; 
                                                                                          return createdAt ? formatDate(createdAt.toString()) : '';},},
-      {accessorKey: 'job_offer.endDate',header: 'Estado Oferta',cell: ({ row }) => (row.getValue('job_offer.endDate') === null? 'Activa' : 'Cerrada')},
+      {accessorKey: 'job_offer.status', header: 'Estado Oferta', cell: ({ row }) => {
+        const status = row.original.job_offer.status;
+        return <Badge variant={status === 'ACTIVE' ? 'default' : 'secondary'}>
+          {offerStatusLabels[status as keyof typeof offerStatusLabels] || status}
+        </Badge>
+      }},
       {accessorKey: 'application_date',header: 'Fecha de Postulación', cell: ({ row }) => formatDate(row.original.application_date),},
       {accessorKey: 'application_status',header: 'Estado Postulación',},      
       {
