@@ -274,14 +274,14 @@ export default function Profile({ user, professional, employer, onClose }: Profi
                   <Label className="font-bold">Areas de atención</Label>
                   <p className="text-sm text-muted-foreground">
                       {professional.professional_care_type
-                          .map((care) => care.health_care_type.name)} 
+                          .map((care) => care.health_care_type.name).join(', ')} 
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold">Tipo de Paciente</Label>
                   <p className="text-sm text-muted-foreground">
                       {professional.professional_patient
-                            .map((patient) => patient.patient_type.name)} 
+                            .map((patient) => patient.patient_type.name).join(', ')} 
                   </p>
                 </div>
                 <div className="space-y-2">
